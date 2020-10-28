@@ -124,7 +124,7 @@ listi makelist (int );							    // Make a new list contaninig an integer
 listi merge (list<int> &l1, list <int> &l2);		// Merge two lists into a single list
 
 int nextinstr();										// Returns the next instruction number
-vd update_nextinstr();
+vd updateNextInstr();;
 
 vd debug();											// Used for printing debugging output
 //Type checking and conversion functions

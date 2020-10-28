@@ -609,7 +609,7 @@ Expression* convertIntToBool(Expression* e)
 		emit("goto","");
 	}
 }
-void update_nextinstr()
+void updateNextInstr()
 {
 	instr_count++;
 	if(debug_on==1)

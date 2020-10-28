@@ -216,22 +216,22 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 24 "ass5_18CS10062_18CS10067.y" /* yacc.c:1909  */
-            //yylval is a union of all these types
+#line 21 "ass5_18CS10062_18CS10067.y" /* yacc.c:1909  */
+            			//yylval is a union of all these types
+	
+	Expression* expr;		   //expression
+	Statement* stat;		   //statement	
 
-	char unaryOp;	//unaryoperator		
-	char* char_value;	//char value
+	char unaryOp;	  			//unaryoperator		
+	char* char_value;			//char value
 
-	int instr_number;		//instruction number: for backpatching
-	int intval;		//integer value	
-	int num_params;			//number of parameters
+	int instr_number;			//instruction number: for backpatching
+	int intval;					//integer value	
+	int num_params;				//number of parameters
 
-	Expression* expr;		//expression
-	Statement* stat;		//statement		
-
-	symboltype* sym_type;	//symbol type  
-	sym* symp;		//symbol
-	Array* A;  //Array type
+	symboltype* sym_type;		//symbol type  
+	sym* symp;					//symbol
+	Array* A;  					//Array type
 		
 
 #line 238 "y.tab.h" /* yacc.c:1909  */

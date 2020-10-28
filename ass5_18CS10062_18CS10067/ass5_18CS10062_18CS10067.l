@@ -46,7 +46,6 @@ WHILE		"while"
 /*--------IDENTIFIER----------------*/
 ID 			[a-zA-Z_][a-zA-Z0-9_]*
 
-
 /*--------INTEGER CONSTANT-----------*/
 INT_CONST   0+|[1-9][0-9]*
 

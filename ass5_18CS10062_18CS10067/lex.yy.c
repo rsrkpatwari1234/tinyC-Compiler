@@ -844,7 +844,7 @@ YY_DECL
 		}
 
 	{
-#line 86 "ass5_18CS10062_18CS10067.l"
+#line 85 "ass5_18CS10062_18CS10067.l"
 
 
 #line 851 "lex.yy.c"
@@ -906,194 +906,194 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 88 "ass5_18CS10062_18CS10067.l"
+#line 87 "ass5_18CS10062_18CS10067.l"
 {BEGIN(single_line_comment);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 89 "ass5_18CS10062_18CS10067.l"
+#line 88 "ass5_18CS10062_18CS10067.l"
 {}
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 90 "ass5_18CS10062_18CS10067.l"
+#line 89 "ass5_18CS10062_18CS10067.l"
 {BEGIN(INITIAL);}
 	YY_BREAK
 case YY_STATE_EOF(single_line_comment):
-#line 91 "ass5_18CS10062_18CS10067.l"
+#line 90 "ass5_18CS10062_18CS10067.l"
 {BEGIN(INITIAL);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 93 "ass5_18CS10062_18CS10067.l"
+#line 92 "ass5_18CS10062_18CS10067.l"
 {BEGIN(multi_line_comment);}
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 94 "ass5_18CS10062_18CS10067.l"
+#line 93 "ass5_18CS10062_18CS10067.l"
 {}
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 95 "ass5_18CS10062_18CS10067.l"
+#line 94 "ass5_18CS10062_18CS10067.l"
 {}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 96 "ass5_18CS10062_18CS10067.l"
+#line 95 "ass5_18CS10062_18CS10067.l"
 {BEGIN(INITIAL);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 98 "ass5_18CS10062_18CS10067.l"
+#line 97 "ass5_18CS10062_18CS10067.l"
 return BREAK;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 99 "ass5_18CS10062_18CS10067.l"
+#line 98 "ass5_18CS10062_18CS10067.l"
 return CASE;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 100 "ass5_18CS10062_18CS10067.l"
+#line 99 "ass5_18CS10062_18CS10067.l"
 return CHAR;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 101 "ass5_18CS10062_18CS10067.l"
+#line 100 "ass5_18CS10062_18CS10067.l"
 return CONST;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 102 "ass5_18CS10062_18CS10067.l"
+#line 101 "ass5_18CS10062_18CS10067.l"
 return CONTINUE;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 103 "ass5_18CS10062_18CS10067.l"
+#line 102 "ass5_18CS10062_18CS10067.l"
 return DEFAULT;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 104 "ass5_18CS10062_18CS10067.l"
+#line 103 "ass5_18CS10062_18CS10067.l"
 return DO;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 105 "ass5_18CS10062_18CS10067.l"
+#line 104 "ass5_18CS10062_18CS10067.l"
 return DOUBLE;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 106 "ass5_18CS10062_18CS10067.l"
+#line 105 "ass5_18CS10062_18CS10067.l"
 return ELSE;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 107 "ass5_18CS10062_18CS10067.l"
+#line 106 "ass5_18CS10062_18CS10067.l"
 return EXTERN;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 108 "ass5_18CS10062_18CS10067.l"
+#line 107 "ass5_18CS10062_18CS10067.l"
 return FLOAT;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 109 "ass5_18CS10062_18CS10067.l"
+#line 108 "ass5_18CS10062_18CS10067.l"
 return FOR;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 110 "ass5_18CS10062_18CS10067.l"
+#line 109 "ass5_18CS10062_18CS10067.l"
 return GOTO;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 111 "ass5_18CS10062_18CS10067.l"
+#line 110 "ass5_18CS10062_18CS10067.l"
 return IF;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 112 "ass5_18CS10062_18CS10067.l"
+#line 111 "ass5_18CS10062_18CS10067.l"
 return INLINE;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 113 "ass5_18CS10062_18CS10067.l"
+#line 112 "ass5_18CS10062_18CS10067.l"
 return INT;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 114 "ass5_18CS10062_18CS10067.l"
+#line 113 "ass5_18CS10062_18CS10067.l"
 return LONG;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 115 "ass5_18CS10062_18CS10067.l"
+#line 114 "ass5_18CS10062_18CS10067.l"
 return RESTRICT;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 116 "ass5_18CS10062_18CS10067.l"
+#line 115 "ass5_18CS10062_18CS10067.l"
 return RETURN;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 117 "ass5_18CS10062_18CS10067.l"
+#line 116 "ass5_18CS10062_18CS10067.l"
 return SHORT;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 118 "ass5_18CS10062_18CS10067.l"
+#line 117 "ass5_18CS10062_18CS10067.l"
 return SIZEOF;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 119 "ass5_18CS10062_18CS10067.l"
+#line 118 "ass5_18CS10062_18CS10067.l"
 return STATIC;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 120 "ass5_18CS10062_18CS10067.l"
+#line 119 "ass5_18CS10062_18CS10067.l"
 return STRUCT;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 121 "ass5_18CS10062_18CS10067.l"
+#line 120 "ass5_18CS10062_18CS10067.l"
 return SWITCH;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 122 "ass5_18CS10062_18CS10067.l"
+#line 121 "ass5_18CS10062_18CS10067.l"
 return TYPEDEF;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 123 "ass5_18CS10062_18CS10067.l"
+#line 122 "ass5_18CS10062_18CS10067.l"
 return UNION;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 124 "ass5_18CS10062_18CS10067.l"
+#line 123 "ass5_18CS10062_18CS10067.l"
 return VOID;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 125 "ass5_18CS10062_18CS10067.l"
+#line 124 "ass5_18CS10062_18CS10067.l"
 return VOLATILE;
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 126 "ass5_18CS10062_18CS10067.l"
+#line 125 "ass5_18CS10062_18CS10067.l"
 return WHILE;
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 128 "ass5_18CS10062_18CS10067.l"
+#line 127 "ass5_18CS10062_18CS10067.l"
 {
 				yylval.symp = ST->lookup(yytext);
 				return IDENTIFIER;
@@ -1101,7 +1101,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 133 "ass5_18CS10062_18CS10067.l"
+#line 132 "ass5_18CS10062_18CS10067.l"
 {
 				yylval.intval = atoi(yytext);
 				return INTEGER_CONSTANT;
@@ -1109,7 +1109,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 138 "ass5_18CS10062_18CS10067.l"
+#line 137 "ass5_18CS10062_18CS10067.l"
 {
 				yylval.char_value = yytext;
 				return FLOAT_CONSTANT;
@@ -1117,7 +1117,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 143 "ass5_18CS10062_18CS10067.l"
+#line 142 "ass5_18CS10062_18CS10067.l"
 {
 				yylval.char_value = yytext;
 				return CHARACTER_CONSTANT;
@@ -1125,7 +1125,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 148 "ass5_18CS10062_18CS10067.l"
+#line 147 "ass5_18CS10062_18CS10067.l"
 {
 				yylval.char_value = yytext;
 				return STRING_LITERAL;
@@ -1133,7 +1133,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 153 "ass5_18CS10062_18CS10067.l"
+#line 152 "ass5_18CS10062_18CS10067.l"
 {
 			if(strcmp(yytext,"[") == 0) 
 				return SQUARE_BRACKET_OPEN;
@@ -1151,7 +1151,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 168 "ass5_18CS10062_18CS10067.l"
+#line 167 "ass5_18CS10062_18CS10067.l"
 {
 			if(strcmp(yytext,"++") == 0) 
 				return UNARY_INCREMENT;
@@ -1161,7 +1161,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 175 "ass5_18CS10062_18CS10067.l"
+#line 174 "ass5_18CS10062_18CS10067.l"
 {
 			if(strcmp(yytext,"<<=") == 0) 
 				return BITWISE_LEFT_ASSIGN;
@@ -1246,14 +1246,14 @@ YY_RULE_SETUP
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 256 "ass5_18CS10062_18CS10067.l"
+#line 255 "ass5_18CS10062_18CS10067.l"
 {
 
 			}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 260 "ass5_18CS10062_18CS10067.l"
+#line 259 "ass5_18CS10062_18CS10067.l"
 ECHO;
 	YY_BREAK
 #line 1260 "lex.yy.c"
@@ -2258,6 +2258,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 260 "ass5_18CS10062_18CS10067.l"
+#line 259 "ass5_18CS10062_18CS10067.l"
 
 
