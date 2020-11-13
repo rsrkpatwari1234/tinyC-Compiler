@@ -1,3 +1,17 @@
+
+#################################
+# GROUP : ATHARVA NAIK ROSHAN (18CS10067)
+#		  RADHIKA PATWARI     (18CS10062)
+# 
+# COMPILER LAB ASSIGNMENT 5
+#
+################################
+# COMMANDS TO RUN THE FILES : make clean
+#			 				  make
+#			 			
+################################
+
+
 all: a.out
 	
 	./a.out < testFiles/ass5_18CS10062_18CS10067_test1.c > outputFiles/ass5_18CS10062_18CS1006_quads1.out

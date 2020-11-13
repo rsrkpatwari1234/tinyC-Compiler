@@ -106,8 +106,8 @@ extern basicType bt;                        // denotes the Type ST
 extern long long int instr_count;			// denotes count of instr
 extern bool debug_on;			// bool for printing debug output
 
-stri convertIntToString(int );
-stri convertFloatToString(float );
+stri convertInt2String(int );
+stri convertFloat2String(float );
 vd generateSpaces(int );
 //Different Attributes for Different Types and Extra Functions
 
@@ -137,22 +137,22 @@ vd changeTable (symtable* );					//to change current table
 
 //Other structures
 struct Statement {
-	listi nextlist;					//nextlist for Statement
+	listi nextList;					//nextList for Statement
 };
 
 struct Array {
 	stri atype;				//Used for type of Array: may be ptr or arr
-	s* loc;					//Location used to compute address of Array
+	s* location;					//locationation used to compute address of Array
 	s* Array;					//pointer to the symbol table entry
 	symboltype* type;			//type of the subarr1 generated (important for multidimensional arr1s)
 };
 
 struct Expression {
-	s* loc;								//pointer to the symbol table entry
+	s* location;								//pointer to the symbol table entry
 	stri type; 							//to store whether the expression is of type int or bool or float or char
-	listi truelist;						//fruelist for boolean expressions
-	listi falselist;					//falselist for boolean expressions
-	listi nextlist;						//for statement expressions
+	listi trueList;						//fruelist for boolean expressions
+	listi falseList;					//falseList for boolean expressions
+	listi nextList;						//for statement expressions
 };
 typedef Expression* Exps;
 Exps convertIntToBool(Exps);				// convert int expression to boolean

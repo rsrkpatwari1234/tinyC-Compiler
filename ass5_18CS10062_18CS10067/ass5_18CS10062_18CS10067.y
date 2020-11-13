@@ -18,29 +18,29 @@ void yyerror(string s);			// error recovery
 
 %}
 
-%union {            			//yylval is a union of all these types
+//declaring data types to be included in yylval
+%union {            		
 	
 	Expression* expr;		   //expression
 	Statement* stat;		   //statement	
+	Array* Arr;  		   	   //array type
 
-	char unaryOp;	  			//unaryoperator		
-	char* char_value;			//char value
+	char unaryOp;	  		   //unary operator		
+	char* char_value;		   //char value
 
-	int instr_number;			//instruction number: for backpatching
-	int intval;					//integer value	
-	int num_params;				//number of parameters
+	int instr_number;		   //instruction number used for backpatching
+	int int_value;			   //integer value	
+	int num_params;			   //number of parameters
 
-	symboltype* sym_type;		//symbol type  
-	sym* symp;					//symbol
-	Array* A;  					//Array type
-		
+	symboltype* sym_type;	   //symbol type  
+	sym* sym_ptr;			   //symbol pointer
 }  
 
 // -------------------------- TOKEN DECLARATION --------------------------------
 
-%token <symp> IDENTIFIER
+%token <sym_ptr> IDENTIFIER
 
-%token <intval> INTEGER_CONSTANT
+%token <int_value> INTEGER_CONSTANT
 %token <char_value> FLOAT_CONSTANT
 %token <char_value> CHARACTER_CONSTANT
 %token <char_value> STRING_LITERAL
@@ -68,15 +68,9 @@ void yyerror(string s);			// error recovery
 //Setting precedence for handling Dangling-if-else shift-reduce conflict 
 %right "LOWER_THAN_ELSE" ELSE
 
-//Auxillary non-terminals M and N
-%type <instr_number> M
-%type <stat> N
-
-//unary operator
-%type <unaryOp> unary_operator
-
-//number of parameters
-%type <num_params> argument_expression_list argument_expression_list_opt
+//Auxillary non-terminals M and N used for backpatching
+%type <instr_number> M 	//store the next instruction to allow control flow
+%type <stat> N 			//store the nex instruction list to allow control flow
 
 //Expressions
 %type <expr>
@@ -97,8 +91,14 @@ void yyerror(string s);			// error recovery
 	assignment_expression
 	expression_statement
 
+//unary operator
+%type <unaryOp> unary_operator
+
+//number of parameters
+%type <num_params> argument_expression_list argument_expression_list_opt
+
 //n dimensional arrays
-%type <A> 
+%type <Arr> 
 	postfix_expression
 	unary_expression
 	cast_expression
@@ -115,12 +115,12 @@ void yyerror(string s);			// error recovery
 	block_item_list
 	block_item_list_opt
 
-//symbol type
+//Symbol type
 %type <sym_type> pointer
 
-//symbol
-%type <symp> initializer
-%type <symp> direct_declarator init_declarator declarator
+//Symbol
+%type <sym_ptr> initializer
+%type <sym_ptr> direct_declarator init_declarator declarator
 
 
 // ------------------------ STATING THE STARTING NON-TERMINAL SYMBOL ------------
@@ -130,158 +130,147 @@ void yyerror(string s);			// error recovery
 
 // -------------------------------- 1. EXPRESSIONS ------------------------------
 
-M 		: %empty 
-		{
-			// backpatching,stores the index of the next quad to be generated
-			// Used in various control statements
-			$$=nextinstr();
-		}   
-		;
-
-N 		: %empty
-		{
-			// backpatching,inserts a goto and stores the index of the next goto statement to guard against fallthrough
-			$$ =new Statement();        //we have defined nextlist for Statements
-			$$->nextlist=makelist(nextinstr());
-			emit("goto","");
-		}
-		;
 
 primary_expression 
-		: IDENTIFIER
+		: IDENTIFIER 								//expression : identifier
 		{     
-			$$=new Expression(); 
-			//create new expression and store pointer to ST entry in the location
-			updateNextInstr();		 
-			$$->loc=$1;
-			updateNextInstr();
-			$$->type="not-boolean";
+			$$ = new Expression();            		//Creating new expression object 		
+			$$->type = "not-boolean";				//stating type of identifier
+			updateNextInstr();	 
+			//storing the location of the Symbol table where the identifier is present
+			$$->location = $1;						
 			updateNextInstr();
 		}
-		| INTEGER_CONSTANT
+		| INTEGER_CONSTANT				   			//expression : integer constant
 		{    
-			$$=new Expression();	
+			$$ = new Expression();	       			//Creating new expression object
 			updateNextInstr();
-			string p=convertIntToString($1);
+			string str = convertInt2String($1);     //converting integer constant to string  
 			updateNextInstr();
-			$$->loc=gentemp(new symboltype("int"),p);
+			//creating a temporary variable with initial value as string form of integer constant ; storing the location of the symbol table where the temporary variable is present
+			$$->location = gentemp(new symboltype("int"),str);      
 			updateNextInstr();
-			emit("=",$$->loc->name,p);
+			emit("=",$$->location->name,str);      // temp : string(integer constant)
 			updateNextInstr();
 		}
-		| FLOAT_CONSTANT				//type is char constant
+		| FLOAT_CONSTANT				   			//expression : floating point constant
 		{  
-			$$=new Expression();	
+			$$ = new Expression();	       			//Creating new expression object
 			updateNextInstr();
-			$$->loc=gentemp(new symboltype("float"),$1);
+			//creating a temporary variable with initial value as string form of float constant ; storing the location of the symbol table where the temporary variable is present
+			$$->location = gentemp(new symboltype("float"),$1);
 			updateNextInstr();
-			emit("=",$$->loc->name,string($1));
+			emit("=",$$->location->name,string($1));  // temp : string(float constant)
 			updateNextInstr();
 		}
-		| CHARACTER_CONSTANT
+		| CHARACTER_CONSTANT               			//expression : character constant
 		{    
-			$$=new Expression();	
+			$$ = new Expression();					//Creating new expression object
 			updateNextInstr();
-			$$->loc=gentemp(new symboltype("char"),$1);
+			//creating a temporary variable with initial value as character ; storing the location of the symbol table where the temporary variable is present
+			$$->location = gentemp(new symboltype("char"),$1);
 			updateNextInstr();
-			emit("=",$$->loc->name,string($1));
-			updateNextInstr();
-		}
-		| STRING_LITERAL
-		{   
-			$$=new Expression();	
-			updateNextInstr();
-			$$->loc=gentemp(new symboltype("ptr"),$1);
-			updateNextInstr();
-			$$->loc->type->arrtype=new symboltype("char");
+			emit("=",$$->location->name,string($1));  // temp : character constant
 			updateNextInstr();
 		}
-		| ROUND_BRACKET_OPEN expression ROUND_BRACKET_CLOSE
+		| STRING_LITERAL  				  			//expression : string literal
 		{   
-			$$ = $2;
+			$$ = new Expression();					//Creating new expression object
+			updateNextInstr();
+			//creating a temporary variable with initial value as base address of the string literal; storing the location of the symbol table where the temporary variable is present
+			$$->location = gentemp(new symboltype("ptr"),$1);
+			updateNextInstr();
+			$$->location->type->arrtype=new symboltype("char");   
+			updateNextInstr();
+		}
+		| ROUND_BRACKET_OPEN expression ROUND_BRACKET_CLOSE    //expression : expression
+		{   
+			$$ = $2;								//equity of expression
 		}
 		;
 
 postfix_expression 
 		: primary_expression 
 		{
-			$$=new Array();
+			$$ = new Array();                        //creating a new Array object
 			updateNextInstr();
-			$$->Array=$1->loc;	
+			$$->location = $$->Array;				 //storing location of Array
 			updateNextInstr();
-			$$->type=$1->loc->type;	
+			$$->Array = $1->location;				 //array pointing to the location of primary expression
 			updateNextInstr();
-			$$->loc=$$->Array;
+			$$->type = $1->location->type;			 //type(postfix expr) : type(primary expr)	
 			updateNextInstr();
 		}
 		| postfix_expression SQUARE_BRACKET_OPEN expression SQUARE_BRACKET_CLOSE
 		{
-			$$=new Array();
+			$$ = new Array();						//creating a new Array object
 			updateNextInstr();
-			$$->type=$1->type->arrtype;				// type=type of element	
+			$$->type = $1->type->arrtype;			//type(postfix expr) : type(primary expr)	
 			updateNextInstr();			
-			$$->Array=$1->Array;						// copy the base
+			$$->Array = $1->Array;				    //array of postfix expr. pointing to array of primary expr.
 			updateNextInstr();
-			$$->loc=gentemp(new symboltype("int"));		// store computed address
+			$$->location = gentemp(new symboltype("int"));		//generating a temporary variable and storing its location
 			updateNextInstr();
-			$$->atype="arr";						//atype is arr.
+			$$->atype = "arr";						//typeOf(Array value) : array
 			updateNextInstr();
-			if($1->atype=="arr") 
+			if($1->atype == "arr")                  //checking the case of multidimensional array
 			{
-				sym* t=gentemp(new symboltype("int"));
+				sym* temp_var = gentemp(new symboltype("int"));   //generated a new entry in the symbol table of type(int)
 				updateNextInstr();
-				int p=computeSize($$->type);
+				int sz = computeSize($$->type);       			 // sz : sizeOf(postfix expression)
 				updateNextInstr();
-				string str=convertIntToString(p);
+				string str = convertInt2String(sz);  			 // str : string(sz)
 				updateNextInstr();
-				emit("*",t->name,$3->loc->name,str);
+				//computing base address of variable for multidimensional array
+				emit("*",temp_var->name,$3->location->name,str);
 				updateNextInstr();	
-				emit("+",$$->loc->name,$1->loc->name,t->name);
+				emit("+",$$->location->name,$1->location->name,temp_var->name);  
 				updateNextInstr();
 			}
-			else 
-			{                        //if a 1D Array, simply calculate size
-				int p=computeSize($$->type);
+			else                     //one-dimensional array case
+			{                         
+				int sz = computeSize($$->type);					// sz : sizeOf(postfix expression)
 				updateNextInstr();
-				string str=convertIntToString(p);
+				string str = convertInt2String(sz);				// str : string(sz)
 				updateNextInstr();
-				emit("*",$$->loc->name,$3->loc->name,str);
+				//computing base address of variable for single dimensional array
+				emit("*",$$->location->name,$3->location->name,str);
 				updateNextInstr();
 			}
 		}
-		| postfix_expression ROUND_BRACKET_OPEN argument_expression_list_opt ROUND_BRACKET_CLOSE
+		| postfix_expression ROUND_BRACKET_OPEN argument_expression_list_opt ROUND_BRACKET_CLOSE	          //function defination with 0 or more parameters
 		{     
-			$$=new Array();	
+			$$=new Array();							//creating a Array object
 			updateNextInstr();
-			$$->Array=gentemp($1->type);
+			$$->Array=gentemp($1->type);			//specifying return value of the function
 			updateNextInstr();
-			string str=convertIntToString($3);
+			string str=convertInt2String($3);		//str : string(count # of arguments)
 			updateNextInstr();
-			emit("call",$$->Array->name,$1->Array->name,str);
+			emit("call",$$->Array->name,$1->Array->name,str);   //call func_name,str where str is # of arguments in func_name defination
 			updateNextInstr();
 		}
-		| postfix_expression DOT IDENTIFIER      {     }
+		| postfix_expression DOT IDENTIFIER      {     }		
 		| postfix_expression IMPLIES IDENTIFIER  {     }
-		| postfix_expression UNARY_INCREMENT
+		| postfix_expression UNARY_INCREMENT                 //unary increment operator after a expression
 		{
-			$$=new Array();
+			$$=new Array();									 //creating an Array object
 			updateNextInstr();
-			$$->Array=gentemp($1->Array->type);
+			$$->Array=gentemp($1->Array->type);              //generating temporary variable of type(postfix expression)
 			updateNextInstr();	
-			emit("=",$$->Array->name,$1->Array->name);
+			emit("=",$$->Array->name,$1->Array->name);       //first copy instruction 
 			updateNextInstr();
-			emit("+",$1->Array->name,$1->Array->name,"1");
+			emit("+",$1->Array->name,$1->Array->name,"1");   //then increment and store the new values
 			updateNextInstr();    
 		}
-		| postfix_expression UNARY_DECREMENT
+		| postfix_expression UNARY_DECREMENT				//unary increment operator after a expression
 		{
-			$$=new Array();
+			$$=new Array();									//creating an Array object
 			updateNextInstr();
-			$$->Array=gentemp($1->Array->type);
+			$$->Array=gentemp($1->Array->type);				//generating temporary variable of type(postfix expression)
 			updateNextInstr();	
-			emit("=",$$->Array->name,$1->Array->name);
+			emit("=",$$->Array->name,$1->Array->name);		//first copy instruction 
 			updateNextInstr();
-			emit("-",$1->Array->name,$1->Array->name,"1");
+			emit("-",$1->Array->name,$1->Array->name,"1");  //then decrement and store the new values
 			updateNextInstr();    
 		}
 		| ROUND_BRACKET_OPEN type_name ROUND_BRACKET_CLOSE CURLY_BRACKET_OPEN initializer_list CURLY_BRACKET_CLOSE       {	    }
@@ -292,11 +281,11 @@ postfix_expression
 argument_expression_list_opt 
 	  	: argument_expression_list
 	  	{
-	  		$$ = $1;
+	  		$$ = $1;						//equating the expression structure
 	  	}
 	  	| %empty
 	  	{
-	  		$$ = 0;
+	  		$$ = 0;                         //initilising # of parameters = 0 in case function argument list is empty
 	  	}
 	  	;
 
@@ -304,87 +293,87 @@ argument_expression_list_opt
 argument_expression_list 
 		: assignment_expression
 		{    
-			$$=1;                                   //one argument and emit param
+			$$=1;                              //only fucntion argument
 			updateNextInstr();
-			emit("param",$1->loc->name);	
+			emit("param",$1->location->name);  //emit parameter instruction
 			updateNextInstr();
 		}
 	  	| argument_expression_list COMMA assignment_expression
 	    {
-			$$=$1+1;                          //one more argument and emit param
+			$$=$1+1;                           //increment # of function arguments
 			updateNextInstr();
-			emit("param",$3->loc->name);	
+			emit("param",$3->location->name);  //emit parameter instruction
 			updateNextInstr();
 	    }
 	  	;
 
 
 unary_expression 
-		: postfix_expression
+		: postfix_expression						
 		{
-			$$ = $1;    
+			$$ = $1;    						//equality of unary and postfix expression
 		}
-		| UNARY_INCREMENT unary_expression
+		| UNARY_INCREMENT unary_expression      //unary increment operator before an expression
 		{
-			emit("+",$2->Array->name,$2->Array->name,"1");
+			emit("+",$2->Array->name,$2->Array->name,"1");  //incrementing value of expression value by 1
 			updateNextInstr();
-			$$=$2;
+			$$=$2;										    //assigning the new value to the LHS expression
 			updateNextInstr();   
 		}
-		| UNARY_DECREMENT unary_expression
+		| UNARY_DECREMENT unary_expression		//unary decrement operator before an expression
 		{
-			emit("-",$2->Array->name,$2->Array->name,"1");
+			emit("-",$2->Array->name,$2->Array->name,"1");  //decrementing value of expression value by 1
 			updateNextInstr();
-			$$=$2;
+			$$=$2;											//assigning the new value to the LHS expression
 			updateNextInstr();   
 		}
-		| unary_operator cast_expression
+		| unary_operator cast_expression                    //unary operator before an expression
 		{      	
-			$$=new Array();
+			$$=new Array();									//creating an Array object
 			updateNextInstr();
-			switch($1)
+			switch($1)				//checking the type of unary operator
 			{	  
-				case '&':                                       //address of something, then generate a pointer temporary and emit the quad
-					
+				case '&':           //generating a temporary variable of pointer data type
 					$$->Array=gentemp((new symboltype("ptr")));
 					updateNextInstr();
-					$$->Array->type->arrtype=$2->Array->type; 
+					$$->Array->type->arrtype=$2->Array->type;   //assigning the data type of the value to be pointed to as the data type of cast expression 
 					updateNextInstr();
-					emit("=&",$$->Array->name,$2->Array->name);
+					emit("=&",$$->Array->name,$2->Array->name);  //pointer reference instruction
 					updateNextInstr();
 					break;
 
-				case '*':                          //value of something, then generate a temporary of the corresponding type and emit the quad	
+				case '*':            //unary expression stores the value of a pointer
 					$$->atype="ptr";
 					updateNextInstr();
-					$$->loc=gentemp($2->Array->type->arrtype);
+					$$->location=gentemp($2->Array->type->arrtype);   //assigning value pointed to, by the cast expression pointer
 					updateNextInstr();
-					$$->Array=$2->Array;
+					$$->Array=$2->Array;							 
 					updateNextInstr();
-					emit("=*",$$->loc->name,$2->Array->name);
+					emit("=*",$$->location->name,$2->Array->name);    //pointer value assigned instruction
 					updateNextInstr();
 					break;
 
 				case '+':  
-					$$=$2;
+					$$=$2;				//unary plus sign does not matter
 					break;
-					                    //unary plus, do nothing
-				case '-':				   //unary minus, generate new temporary of the same base type and make it negative of current one
-					$$->Array=gentemp(new symboltype($2->Array->type->type));
+					                    
+				case '-':				//unary minus
+					$$->Array=gentemp(new symboltype($2->Array->type->type));  //generating temporary varible for storing negative value of expression value
 					updateNextInstr();
 					emit("MINUS",$$->Array->name,$2->Array->name);
 					updateNextInstr();
 					break;
 
-				case '~':                   //bitwise not, generate new temporary of the same base type and make it negative of current one
-					$$->Array=gentemp(new symboltype($2->Array->type->type));
+				case '~':                   //bitwise not
+					$$->Array=gentemp(new symboltype($2->Array->type->type));   //generating temporary variable of the same base type to store the negation of expression value
 					updateNextInstr();
 					emit("~",$$->Array->name,$2->Array->name);
 					updateNextInstr();
 					break;
 
-				case '!':				//logical not, generate new temporary of the same base type and make it negative of current one
+				case '!':				//logical not
 					$$->Array=gentemp(new symboltype($2->Array->type->type));
+					//generate temporary variable of the same base type and storing the negation of boolean value of the expression
 					updateNextInstr();
 					emit("!",$$->Array->name,$2->Array->name);
 					updateNextInstr();
@@ -399,32 +388,32 @@ unary_expression
 unary_operator
 		: BITWISE_AND
 		{
-			$$ = '&';
+			$$ = '&';					//assigning operator
 			updateNextInstr();
 		}
 		| MUL
 		{
-			$$ = '*';
+			$$ = '*';					//assigning operator
 			updateNextInstr();
 		}
 		| PLUS
 		{
-			$$ = '+';
+			$$ = '+';					//assigning operator
 			updateNextInstr();
 		}
 		| MINUS
 		{
-			$$ = '-';
+			$$ = '-';					//assigning operator
 			updateNextInstr();
 		}
 		| COMPLEMENT
 		{
-			$$ = '~';
+			$$ = '~';					//assigning operator
 			updateNextInstr();
 		}
 		| NOT
 		{
-			$$ = '!';
+			$$ = '!';					//assigning operator
 			updateNextInstr();
 		}
 		;
@@ -433,86 +422,95 @@ unary_operator
 cast_expression 
 		: unary_expression
 		{
-			$$ = $1;     
+			$$ = $1;     				//equating the value of expressions
 		}
 		| ROUND_BRACKET_OPEN type_name ROUND_BRACKET_CLOSE cast_expression
-		{ 
-			$$=new Array();	
-			updateNextInstr();
-			$$->Array=convertType($4->Array,var_type); 
+		{ 								//explicit type conversion of data
+			$$=new Array();				//creating an Array object
+			updateNextInstr();	
+			$$->Array=convertType($4->Array,var_type);    //storing the new value of the cast expression obtained after performing the required conversion 
 			updateNextInstr();
 		}
 		;
 
 
 multiplicative_expression 
-		: cast_expression
+		: cast_expression 					   //assigning value of expr
 		{
-			$$ = new Expression();             //generate new expression	
+			$$ = new Expression();             //creating an Expression object	
 			updateNextInstr();						    
-			if($1->atype=="arr") 			   //if it is of type arr
+			if($1->atype=="arr") 			   //cast expr is of type 'array'
 			{
-				$$->loc = gentemp($1->loc->type);	
+				$$->location = gentemp($1->location->type);	  //generating a temporary and storing its Symbol table location
 				updateNextInstr();
-				emit("=[]",  $$->loc->name,$1->Array->name, $1->loc->name);     //emit with Array right
+				emit("=[]",  $$->location->name,$1->Array->name, $1->location->name);       
 				updateNextInstr();
 			}
-			else if($1->atype=="ptr")         //if it is of type ptr
+			else if($1->atype=="ptr")         //cast expr is of type 'pointer'
 			{ 
-				$$->loc = $1->loc;        //equate the locs
+				$$->location = $1->location;       //assinging the location value of cast expr
 				updateNextInstr();
+			}
+			else 							//assigning Array value for none of array and pointer case
+			{
+				$$->location = $1->Array;		
+				updateNextInstr();
+			}
+		}
+		| multiplicative_expression MUL cast_expression       //for multiplication
+		{ 
+			debug();
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->Array))  
+			{    
+				cout << " Mismatch of Data Type " << endl;	      //print error for mismatch of data types
+			}
+			else 
+			{
+				$$ = new Expression();	
+				updateNextInstr();
+				//generate a temporary to store the value after multiplication
+				$$->location = gentemp(new symboltype($1->location->type->type));
+				updateNextInstr();
+				emit("*",$$->location->name,$1->location->name, $3->Array->name);
+				updateNextInstr();
+			}
+		}
+		| multiplicative_expression DIV cast_expression         //for division
+		{ 
+			debug();
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->Array)) 
+			{        
+				cout<<"	Mismatch of Data Type "<< endl;	       //print error for mismatch of data types
+			}
+			else 
+			{
+				$$ = new Expression();	
+				updateNextInstr();
+				//generate a temporary to store the value after division
+				$$->location = gentemp(new symboltype($1->location->type->type));
+				updateNextInstr();
+				emit("/",$$->location->name,$1->location->name, $3->Array->name);
+				updateNextInstr();
+			}
+		}
+		| multiplicative_expression MOD cast_expression            //for modulus 
+		{ 
+			debug();
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->Array))  
+			{       
+				cout<<"	Mismatch of Data Type "<< endl;         	//print error for mismatch of data types
 			}
 			else
 			{
-				$$->loc = $1->Array;
-				updateNextInstr();
-			}
-		}
-		| multiplicative_expression MUL cast_expression
-		{ 
-			debug();
-			if(!compareSymbolType($1->loc, $3->Array))         
-				cout<<"Type Error in Program"<< endl;	// error
-			else 
-	//if types are compatible, generate new temporary and equate to the product
-			{
 				$$ = new Expression();	
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype($1->loc->type->type));
+				//generate a temporary to store the value after doing modulus
+				$$->location = gentemp(new symboltype($1->location->type->type));
 				updateNextInstr();
-				emit("*",$$->loc->name,$1->loc->name, $3->Array->name);
-				updateNextInstr();
-			}
-		}
-		| multiplicative_expression DIV cast_expression
-		{ 
-			debug();
-			if(!compareSymbolType($1->loc, $3->Array))         
-				cout<<"Type Error in Program"<< endl;	// error
-			else 
-	//if types are compatible, generate new temporary and equate to the product
-			{
-				$$ = new Expression();	
-				updateNextInstr();
-				$$->loc = gentemp(new symboltype($1->loc->type->type));
-				updateNextInstr();
-				emit("/",$$->loc->name,$1->loc->name, $3->Array->name);
-				updateNextInstr();
-			}
-		}
-		| multiplicative_expression MOD cast_expression
-		{ 
-			debug();
-			if(!compareSymbolType($1->loc, $3->Array))         
-				cout<<"Type Error in Program"<< endl;	// error
-			else 
-	//if types are compatible, generate new temporary and equate to the product
-			{
-				$$ = new Expression();	
-				updateNextInstr();
-				$$->loc = gentemp(new symboltype($1->loc->type->type));
-				updateNextInstr();
-				emit("%",$$->loc->name,$1->loc->name, $3->Array->name);
+				emit("%",$$->location->name,$1->location->name, $3->Array->name);
 				updateNextInstr();
 			}
 		}
@@ -522,35 +520,43 @@ multiplicative_expression
 additive_expression 
 		: multiplicative_expression
 		{ 
-			$$ = $1;   
+			$$ = $1;   					//equating the two expressions
 		}
-		| additive_expression PLUS multiplicative_expression
+		| additive_expression PLUS multiplicative_expression    //for addition
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc))
-				cout << "Type Error in Program"<< endl;
-			else    	//if types are compatible, generate new temporary and equate to the sum
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location))
+			{
+				cout <<" Mismatch of Data Type "<< endl;       //print error for mismatch of data types
+			}
+			else    
 			{
 				$$ = new Expression();	
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype($1->loc->type->type));
+				//generate a temporary to store the value after performing addition
+				$$->location = gentemp(new symboltype($1->location->type->type));
 				updateNextInstr();
-				emit("+",$$->loc->name, $1->loc->name, $3->loc->name);
+				emit("+",$$->location->name, $1->location->name, $3->location->name);
 				updateNextInstr();
 			}
 		}
-		| additive_expression MINUS multiplicative_expression
+		| additive_expression MINUS multiplicative_expression      //for subtraction
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc))
-				cout << "Type Error in Program"<< endl;
-			else    	//if types are compatible, generate new temporary and equate to the sum
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location))
+			{
+				cout << " Mismatch of Data Type "<< endl;          //print error for mismatch of data types
+			}
+			else 
 			{
 				$$ = new Expression();	
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype($1->loc->type->type));
+				//generate a temporary to store the value after performing subtraction
+				$$->location = gentemp(new symboltype($1->location->type->type));
 				updateNextInstr();
-				emit("-",$$->loc->name, $1->loc->name, $3->loc->name);
+				emit("-",$$->location->name, $1->location->name, $3->location->name);
 				updateNextInstr();
 			}
 		}
@@ -560,35 +566,43 @@ additive_expression
 shift_expression 
 		: additive_expression
 		{
-			$$ = $1;  
+			$$ = $1;  					//equating the value of 2 expressions
 		}
-		| shift_expression BITWISE_LEFT additive_expression
+		| shift_expression BITWISE_LEFT additive_expression     //for bitwise left
 		{ 
 			debug();
-			if(!($3->loc->type->type == "int"))
-				cout << "Type Error in Program"<< endl; 		
-			else            //if base type is int, generate new temporary and equate to the shifted value
+			//Ensure shifting left is to be done by a constant
+			if(!($3->location->type->type == "int"))
+			{
+				cout << " Shifting cannot be done : Not an integer value "<< endl; 						//print error 
+			}
+			else           
 			{		
 				$$ = new Expression();	
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype("int"));
+				//generate a temporary to store the value after performing left shift
+				$$->location = gentemp(new symboltype("int"));
 				updateNextInstr();
-				emit("<<",$$->loc->name, $1->loc->name, $3->loc->name);
+				emit("<<",$$->location->name, $1->location->name, $3->location->name);
 				updateNextInstr();
 			}
 		}
-		| shift_expression BITWISE_RIGHT additive_expression
+		| shift_expression BITWISE_RIGHT additive_expression      //for bitwise right 
 		{ 
 			debug();
-			if(!($3->loc->type->type == "int"))
-				cout << "Type Error in Program"<< endl; 		
-			else            //if base type is int, generate new temporary and equate to the shifted value
+			//Ensure shifting right is to be done by a constant
+			if(!($3->location->type->type == "int"))
+			{
+				cout << " Shifting cannot be done : Not an integer value "<< endl; 						//print error 
+			}
+			else            
 			{		
 				$$ = new Expression();	
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype("int"));
+				//generate a temporary to store the value after performing right shift
+				$$->location = gentemp(new symboltype("int"));
 				updateNextInstr();
-				emit(">>", $$->loc->name, $1->loc->name, $3->loc->name);
+				emit(">>", $$->location->name, $1->location->name, $3->location->name);
 				updateNextInstr();
 			}
 		}
@@ -598,99 +612,103 @@ shift_expression
 relational_expression 
 		: shift_expression
 		{ 
-			$$ = $1;
+			$$ = $1;				//equating the value of 2 expressions
 		}
-		| relational_expression LESS_THAN shift_expression
+		| relational_expression LESS_THAN shift_expression       //for less than
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc)) 
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location)) 
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;       //print error for mismatch of data types
 			}
 			else 
-			{      //check compatible types									
+			{     								
 				$$ = new Expression();
 				updateNextInstr();
-				$$->type = "bool";                         //new type is boolean
+				$$->type = "bool";                   //resultant value is boolean
 				updateNextInstr();		
-				$$->truelist = makelist(nextinstr());     //makelist for truelist and falselist
+				$$->trueList = makelist(nextinstr()); //creating truelist for bool expression
 				updateNextInstr();
-				$$->falselist = makelist(nextinstr()+1);
+				$$->falseList = makelist(nextinstr()+1); //creating falselist for bool expression
 				updateNextInstr();
-				emit("<","",$1->loc->name, $3->loc->name);
+				emit("<","",$1->location->name, $3->location->name);
 				//emit statement if a<b goto .. 
 				updateNextInstr();
 				emit("goto", "");	//emit statement goto ..
 				updateNextInstr();
 			}
-		}
-		| relational_expression GREATER_THAN shift_expression
+		} 
+		| relational_expression GREATER_THAN shift_expression        //for greater than
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc)) 
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location)) 
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;			//print error for mismatch of data types
 			}
 			else 
-			{      //check compatible types									
+			{							
 				$$ = new Expression();
 				updateNextInstr();
-				$$->type = "bool";                         //new type is boolean
+				$$->type = "bool";                   //resultant value is boolean
 				updateNextInstr();		
-				$$->truelist = makelist(nextinstr());     //makelist for truelist and falselist
+				$$->trueList = makelist(nextinstr());     //creating truelist for bool expression
 				updateNextInstr();
-				$$->falselist = makelist(nextinstr()+1);
+				$$->falseList = makelist(nextinstr()+1);  //creating falselist for bool expression
 				updateNextInstr();
-				emit(">","",$1->loc->name, $3->loc->name);
-				//emit statement if a<b goto .. 
+				emit(">","",$1->location->name, $3->location->name);
+				//emit statement if a>b goto .. 
 				updateNextInstr();
 				emit("goto", "");	//emit statement goto ..
 				updateNextInstr();
 			}
 		}
-		| relational_expression LESS_EQUAL shift_expression
+		| relational_expression LESS_EQUAL shift_expression         //for less than and equal to
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc)) 
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location)) 
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;          //print error for mismatch of data types
 			}
 			else 
-			{      //check compatible types									
+			{    							
 				$$ = new Expression();
 				updateNextInstr();
-				$$->type = "bool";                         //new type is boolean
+				$$->type = "bool";                  //resultant value is boolean
 				updateNextInstr();		
-				$$->truelist = makelist(nextinstr());     //makelist for truelist and falselist
+				$$->trueList = makelist(nextinstr());     //creating truelist for bool expression
 				updateNextInstr();
-				$$->falselist = makelist(nextinstr()+1);
+				$$->falseList = makelist(nextinstr()+1);  //creating falselist for bool expression
 				updateNextInstr();
-				emit("<=","",$1->loc->name, $3->loc->name);
-				//emit statement if a<b goto .. 
+				emit("<=","",$1->location->name, $3->location->name);
+				//emit statement if a<=b goto .. 
 				updateNextInstr();
 				emit("goto", "");	//emit statement goto ..
 				updateNextInstr();
 			}
 		}
-		| relational_expression GREATER_EQUAL shift_expression
+		| relational_expression GREATER_EQUAL shift_expression        //for greater than and equal to
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc)) 
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location)) 
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;			//print error for mismatch of data types
 			}
 			else 
-			{      //check compatible types									
+			{    							
 				$$ = new Expression();
 				updateNextInstr();
-				$$->type = "bool";                         //new type is boolean
+				$$->type = "bool";                  //resultant value is boolean
 				updateNextInstr();		
-				$$->truelist = makelist(nextinstr());     //makelist for truelist and falselist
+				$$->trueList = makelist(nextinstr());     //creating truelist for bool expression
 				updateNextInstr();
-				$$->falselist = makelist(nextinstr()+1);
+				$$->falseList = makelist(nextinstr()+1);  //creating falselist for bool expression
 				updateNextInstr();
-				emit(">=","",$1->loc->name, $3->loc->name);
-				//emit statement if a<b goto .. 
+				emit(">=","",$1->location->name, $3->location->name);
+				//emit statement if a>=b goto .. 
 				updateNextInstr();
 				emit("goto", "");	//emit statement goto ..
 				updateNextInstr();
@@ -702,30 +720,30 @@ relational_expression
 equality_expression 
 		: relational_expression
 		{
-			$$ = $1;   
+			$$ = $1;   					//equating the value of 2 expressions
 		}
-		| equality_expression EQUAL relational_expression
+		| equality_expression EQUAL relational_expression       //for equality of 2 expressions
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc))     //check compatible types
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location)) 
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;       //print error for mismatch of data types
 			}
 			else 
 			{
-				convertBoolToInt($1);                  //convert bool to int
+				convertBoolToInt($1);                  //convert bool to int value
 				updateNextInstr();	
-				convertBoolToInt($3);
+				convertBoolToInt($3);				   //convert bool to int value
 				updateNextInstr();
-				$$ = new Expression();
+				$$ = new Expression();				   //creating an Expression object
 				updateNextInstr();
-				$$->type = "bool";
+				$$->type = "bool";					   //data type of new expr is boolean
 				updateNextInstr();
-				$$->truelist = makelist(nextinstr());//make lists for new expre
+				$$->trueList = makelist(nextinstr());      //creating truelist for bool expression
+				$$->falseList = makelist(nextinstr()+1);   //creating falselist for bool expression
 				updateNextInstr();
-				$$->falselist = makelist(nextinstr()+1); 
-				updateNextInstr();
-				emit("==", "", $1->loc->name, $3->loc->name);      
+				emit("==", "", $1->location->name, $3->location->name);      
 				//emit if a==b goto ..
 				updateNextInstr();
 				emit("goto", "");				//emit goto ..
@@ -736,26 +754,26 @@ equality_expression
 		| equality_expression NOT_EQUAL relational_expression
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc))  //check compatible types
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location))  
 			{
-				cout << "Type Error in Program"<< endl;
+				cout <<" Mismatch of Data Type "<< endl;        //print error for mismatch of data types
 			}
 			else 
 			{
-				convertBoolToInt($1);                  //convert bool to int
+				convertBoolToInt($1);                 //convert bool to int value
 				updateNextInstr();	
-				convertBoolToInt($3);
+				convertBoolToInt($3);                 //convert bool to int value
 				updateNextInstr();
-				$$ = new Expression();
+				$$ = new Expression();				  //creating an Expression object
 				updateNextInstr();
-				$$->type = "bool";
+				$$->type = "bool";                    //data type of new expr is boolean
 				updateNextInstr();
-				$$->truelist = makelist(nextinstr());//make lists for new expre
+				$$->trueList = makelist(nextinstr());    //creating truelist for bool expression
+				$$->falseList = makelist(nextinstr()+1); //creating falselist for bool expression
 				updateNextInstr();
-				$$->falselist = makelist(nextinstr()+1); 
-				updateNextInstr();
-				emit("!=", "", $1->loc->name, $3->loc->name);      
-				//emit if a==b goto ..
+				emit("!=", "", $1->location->name, $3->location->name);      
+				//emit if a!=b goto ..
 				updateNextInstr();
 				emit("goto", "");				//emit goto ..
 				updateNextInstr();
@@ -768,28 +786,29 @@ equality_expression
 AND_expression 
 		: equality_expression
 		{
-			$$ = $1; 
+			$$ = $1; 				//equating the value of 2 expressions
 		}
 		| AND_expression BITWISE_AND equality_expression
 		{
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc))//check compatible types 
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location))
 			{	
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;        //print error for mismatch of data types
 			}
 			else 
 			{            
-				convertBoolToInt($1);                      //convert bool to int
+				convertBoolToInt($1);                 //convert bool to int value
 				updateNextInstr();
-				convertBoolToInt($3);
+				convertBoolToInt($3);                 //convert bool to int value
 				updateNextInstr();
-				$$ = new Expression();
+				$$ = new Expression(); 				  //creating an Expression object
 				updateNextInstr();
-				$$->type = "not-boolean";                  //result is not boolean
+				$$->type = "not-boolean";             //result is not boolean
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype("int"));
+				$$->location = gentemp(new symboltype("int"));
 				updateNextInstr();
-				emit("&", $$->loc->name, $1->loc->name,$3->loc->name);
+				emit("&", $$->location->name, $1->location->name,$3->location->name);
 				//emit the quad
 				updateNextInstr();
 			}
@@ -800,29 +819,30 @@ AND_expression
 exclusive_OR_expression 
 		: AND_expression
 		{
-			$$ = $1;    
+			$$ = $1;    			//equating the value of 2 expressions
 		}
 		| exclusive_OR_expression XOR AND_expression
 		{
 			debug();
-			//same as and_expression: check compatible types, make non-boolean expression and convert bool to int and emit
-			if(!compareSymbolType($1->loc, $3->loc))    
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location))    
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << " Mismatch of Data Type "<< endl;       //print error for mismatch of data types
 			}
 			else 
 			{
-				convertBoolToInt($1);	
+				convertBoolToInt($1);                //convert bool to int value
 				updateNextInstr();
-				convertBoolToInt($3);
+				convertBoolToInt($3);                //convert bool to int value
 				updateNextInstr();
-				$$ = new Expression();
+				$$ = new Expression(); 				  //creating an Expression object
 				updateNextInstr();
-				$$->type = "not-boolean";
+				$$->type = "not-boolean";            //result is not boolean
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype("int"));
+				$$->location = gentemp(new symboltype("int"));
 				updateNextInstr();
-				emit("^", $$->loc->name, $1->loc->name, $3->loc->name);
+				emit("^", $$->location->name, $1->location->name, $3->location->name); 
+				//emit the quad
 				updateNextInstr();
 			}
 		}
@@ -832,28 +852,30 @@ exclusive_OR_expression
 inclusive_OR_expression 
 		: exclusive_OR_expression
 		{
-			$$ = $1;     
+			$$ = $1;    			//equating the value of 2 expressions
 		}
 		| inclusive_OR_expression BITWISE_OR exclusive_OR_expression
 		{ 
 			debug();
-			if(!compareSymbolType($1->loc, $3->loc))   //same as and_expression: check compatible types, make non-boolean expression and convert bool to int and emit
+			//check compatibility of data types of both RHS expressions
+			if(!compareSymbolType($1->location, $3->location))
 			{
-				cout << "Type Error in Program"<< endl;
+				cout << "Mismatch of Data Type "<< endl;       //print error for mismatch of data types
 			}
 			else 
 			{
-				convertBoolToInt($1);		
+				convertBoolToInt($1);	            //convert bool to int value	
 				updateNextInstr();
-				convertBoolToInt($3);
+				convertBoolToInt($3);               //convert bool to int value
 				updateNextInstr();
-				$$ = new Expression();
+				$$ = new Expression(); 				//creating an Expression object
 				updateNextInstr();
-				$$->type = "not-boolean";
+				$$->type = "not-boolean";           //result is not boolean
 				updateNextInstr();
-				$$->loc = gentemp(new symboltype("int"));
+				$$->location = gentemp(new symboltype("int"));
 				updateNextInstr();
-				emit("|", $$->loc->name, $1->loc->name, $3->loc->name);
+				emit("|", $$->location->name, $1->location->name, $3->location->name);
+				//emit quad
 				updateNextInstr();
 			} 
 		}
@@ -863,27 +885,27 @@ inclusive_OR_expression
 logical_AND_expression 
 		: inclusive_OR_expression
 		{
-			$$ = $1;    
+			$$ = $1;        			//equating the value of 2 expressions
 		}
 		| logical_AND_expression N LOGICAL_AND M inclusive_OR_expression
 		{ 
 			debug();
-			convertIntToBool($5);    //convert inclusive_or_expression int to bool
+			convertIntToBool($5);    //convert inclusive_OR_expression int to bool
 			updateNextInstr();
-			backpatch($2->nextlist, nextinstr()); //$2->nextlist goes to next instr
+			backpatch($2->nextList, nextinstr()); //$2->nextList goes to next instr
 			updateNextInstr();
-			convertIntToBool($1); //convert logical_and_expression to bool
+			convertIntToBool($1);   //convert logical_AND_expression to bool
 			updateNextInstr();
-			$$ = new Expression();     //make new boolean expression 
+			$$ = new Expression();  //Create new boolean expression 
 			updateNextInstr();
 			$$->type = "bool";
 			updateNextInstr();
-			backpatch($1->truelist, $4);        //if $1 is true, we move to $5
+			backpatch($1->trueList, $4);        //if $1 is true, we move to $5
 			updateNextInstr();
-			$$->truelist = $5->truelist;        //if $5 is also true, we get truelist for $$
+			$$->trueList = $5->trueList;        //if $5 is also true, we get trueList for $$
 			updateNextInstr();
-			$$->falselist = merge($1->falselist, $5->falselist);   
-			 //merge their falselists
+			$$->falseList = merge($1->falseList, $5->falseList);   
+			 //merge their falseLists
 			updateNextInstr();
 		}
 		;
@@ -892,28 +914,28 @@ logical_AND_expression
 logical_OR_expression 
 		: logical_AND_expression
 		{
-			$$ = $1;     
+			$$ = $1;         			//equating the value of 2 expressions
 		}
 		| logical_OR_expression N LOGICAL_OR M logical_AND_expression
 		{ 
 			debug();
-			convertIntToBool($5);    //convert inclusive_or_expression int to bool
+			convertIntToBool($5);    //convert inclusive_OR_expression int to bool
 			updateNextInstr();
-			backpatch($2->nextlist, nextinstr()); //$2->nextlist goes to next instr
+			backpatch($2->nextList, nextinstr()); //$2->nextList goes to next instr
 			updateNextInstr();
-			convertIntToBool($1); //convert logical_and_expression to bool
+			convertIntToBool($1); //convert logical_AND_expression to bool
 			updateNextInstr();
-			$$ = new Expression();     //make new boolean expression 
+			$$ = new Expression();     //create new boolean expression 
 			updateNextInstr();
 			$$->type = "bool";
 			updateNextInstr();
-			backpatch($1->falselist, $4);        //if $1 is true, we move to $5
+			backpatch($1->falseList, $4);        //if $1 is true, we move to $5
 			updateNextInstr();
-			$$->truelist = merge($1->truelist, $5->truelist);
-			//if $5 is also true, we get truelist for $$
+			$$->trueList = merge($1->trueList, $5->trueList);
+			//if $5 is also true, we get trueList for $$
 			updateNextInstr();
-			$$->falselist = $5->falselist;
-			 //merge their falselists
+			$$->falseList = $5->falseList;
+			 //merge their falseLists
 			updateNextInstr();
 		}
 		;
@@ -922,28 +944,25 @@ logical_OR_expression
 conditional_expression 
 		: logical_OR_expression
 		{
-			$$ = $1;   
+			$$ = $1;           			//equating the value of 2 expressions
 		}
 		| logical_OR_expression N QUES_MARK M expression N COLON M  conditional_expression
 		{
 			debug();
-			//normal conversion method to get conditional expressions
-			$$->loc = gentemp($5->loc->type);       
-			//generate temporary for expression
+			$$->location = gentemp($5->location->type);       //generate temporary for storing the value of expression
 			updateNextInstr();
-			$$->loc->update($5->loc->type);
+			$$->location->update($5->location->type);
 			updateNextInstr();
-			emit("=", $$->loc->name, $9->loc->name);      
-			//make it equal to conditional_expression
+			emit("=", $$->location->name, $9->location->name);  //copy value instruction
 			updateNextInstr();
 			debug();
-			list<int> l = makelist(nextinstr());        //makelist next instruction
-			emit("goto", "");              //prevent fallthrough
+			list<int> l = makelist(nextinstr());     //makelist next instruction
+			emit("goto", "");                        //prevent fallthrough
 			updateNextInstr();
 			debug();
-			backpatch($6->nextlist, nextinstr()); //after N, go to next instruction
+			backpatch($6->nextList, nextinstr());    //after N, go to next instruction
 			updateNextInstr();
-			emit("=", $$->loc->name, $5->loc->name);
+			emit("=", $$->location->name, $5->location->name);
 			updateNextInstr();
 			debug();
 			list<int> m = makelist(nextinstr());    //makelist next instruction
@@ -953,13 +972,13 @@ conditional_expression
 			emit("goto", "");						//prevent fallthrough
 			updateNextInstr();
 			debug();
-			backpatch($2->nextlist, nextinstr());   //backpatching
+			backpatch($2->nextList, nextinstr());   //backpatching
 			updateNextInstr();
 			convertIntToBool($1);                   //convert expression to boolean
 			updateNextInstr();
-			backpatch($1->truelist, $4);           //$1 true goes to expression
+			backpatch($1->trueList, $4);           //$1 true goes to expression
 			updateNextInstr();
-			backpatch($1->falselist, $8);          //$1 false goes to conditional_expression
+			backpatch($1->falseList, $8);          //$1 false goes to conditional_expression
 			updateNextInstr();
 			backpatch(l, nextinstr());
 			updateNextInstr();
@@ -970,27 +989,27 @@ conditional_expression
 assignment_expression 
 		: conditional_expression
 		{
-			$$ = $1;     
+			$$ = $1;            	//equating the value of 2 expressions    
 		}
 		| unary_expression assignment_operator assignment_expression
 		{
 			debug();
 			if($1->atype=="arr")       //if type is arr, simply check if we need to convert and emit
 			{
-				$3->loc = convertType($3->loc, $1->type->type);
+				$3->location = convertType($3->location, $1->type->type);
 				updateNextInstr();
-				emit("[]=", $1->Array->name, $1->loc->name, $3->loc->name);		
+				emit("[]=", $1->Array->name, $1->location->name, $3->location->name);		
 				updateNextInstr();
 			}
 			else if($1->atype=="ptr")     //if type is ptr, simply emit
 			{
-				emit("*=", $1->Array->name, $3->loc->name);		
+				emit("*=", $1->Array->name, $3->location->name);		
 				updateNextInstr();
 			}
-			else                              //otherwise assignment
+			else                          //otherwise copy the value
 			{
-				$3->loc = convertType($3->loc, $1->Array->type->type);
-				emit("=", $1->Array->name, $3->loc->name);
+				$3->location = convertType($3->location, $1->Array->type->type);
+				emit("=", $1->Array->name, $3->location->name);
 				updateNextInstr();
 			}
 			
@@ -1017,7 +1036,7 @@ assignment_operator
 expression 
 		: assignment_expression
 		{
-			$$ = $1;   
+			$$ = $1;            	//equating the value of 2 expressions
 		}
 		| expression COMMA assignment_expression 	{	}
 		;
@@ -1065,13 +1084,13 @@ init_declarator_list
 init_declarator 
 		: declarator  
 		{
-			$$=$1;	   
+			$$=$1;	             	//equating the value of 2 expressions  
 		}
 		| declarator ASSIGN initializer
 		{
 			if($3->val!="") 
-				$1->val=$3->val;        //get the initial value and  emit it
-			emit("=", $1->name, $3->name);
+				$1->val=$3->val;    //initialising declarator with value of initializer
+			emit("=", $1->name, $3->name);     //copy value instruction
 			updateNextInstr();
 		}
 		;
@@ -1081,7 +1100,7 @@ storage_class_specifier
 		| STATIC	{	}
 		;
 
-type_specifier 
+type_specifier       
 		: VOID   {  var_type = "void";  }
 		| CHAR   {  var_type = "char";  }
 		| SHORT  {   					}
@@ -1116,8 +1135,9 @@ declarator
 		{
 			symboltype *t = $1;
 			updateNextInstr();
-			 //for multidimensional arr1s, move in depth till you get the base type
-			while(t->arrtype!=NULL) t = t->arrtype;          
+			//for multidimensional arrays, move in depth until base type is obtained
+			while(t->arrtype!=NULL) 
+				t = t->arrtype;          
 			updateNextInstr();
 			t->arrtype = $2->type;                //add the base type 
 			updateNextInstr();
@@ -1129,21 +1149,21 @@ declarator
 
 
 direct_declarator 
-		: IDENTIFIER                 //if ID, simply add a new variable of var_type
+		: IDENTIFIER         
 		{
-			$$ = $1->update(new symboltype(var_type));
+			$$ = $1->update(new symboltype(var_type));   //add a new variable of var_type
 			updateNextInstr();
 			currSymbolPtr = $$;
 			updateNextInstr();
 		}
 		| ROUND_BRACKET_OPEN declarator ROUND_BRACKET_CLOSE  
 		{ 
-			$$ = $2; 
+			$$ = $2; 						//equating the value of declarators
 		}
 		| direct_declarator SQUARE_BRACKET_OPEN type_qualifier_list assignment_expression SQUARE_BRACKET_CLOSE		{	}
 		| direct_declarator SQUARE_BRACKET_OPEN assignment_expression SQUARE_BRACKET_CLOSE		
 		{
-			symboltype *t = $1 -> type;
+			symboltype *t = $1->type;   //creating symbol of type(declarator)
 			updateNextInstr();
 			symboltype *prev = NULL;
 			updateNextInstr();
@@ -1155,7 +1175,7 @@ direct_declarator
 			}
 			if(prev==NULL) 
 			{
-				int temp = atoi($3->loc->val.c_str());      //get initial value
+				int temp = atoi($3->location->val.c_str());      //get initial value
 				updateNextInstr();
 				symboltype* s = new symboltype("arr", $1->type, temp);        //create new symbol with that initial value
 				updateNextInstr();
@@ -1164,7 +1184,7 @@ direct_declarator
 			}
 			else 
 			{
-				prev->arrtype =  new symboltype("arr", t, atoi($3->loc->val.c_str()));     //similar arguments as above		
+				prev->arrtype =  new symboltype("arr", t, atoi($3->location->val.c_str()));
 				updateNextInstr();
 				$$ = $1->update($1->type);
 				updateNextInstr();
@@ -1173,7 +1193,7 @@ direct_declarator
 		| direct_declarator SQUARE_BRACKET_OPEN type_qualifier_list    SQUARE_BRACKET_CLOSE		{	}
 		| direct_declarator SQUARE_BRACKET_OPEN SQUARE_BRACKET_CLOSE		
 		{
-			symboltype *t = $1 -> type;
+			symboltype *t = $1->type;  //creating symbol of type(declarator)
 			updateNextInstr();
 			symboltype *prev = NULL;
 			updateNextInstr();
@@ -1205,17 +1225,17 @@ direct_declarator
 		| direct_declarator SQUARE_BRACKET_OPEN MUL SQUARE_BRACKET_CLOSE  {   }
 		| direct_declarator ROUND_BRACKET_OPEN changetable parameter_type_list ROUND_BRACKET_CLOSE
 		{
-			ST->name = $1->name;
+			ST->name = $1->name;		//stating the name of the symbol table
 			updateNextInstr();
-			if($1->type->type !="void") 
+			if($1->type->type !="void") 		//if function has a return type
 			{
-				sym *s = ST->lookup("return");         //lookup for return value	
+				sym *s = ST->lookup("return");   //lookup for return value	
 				s->update($1->type);
 				updateNextInstr();
 			}
 			$1->nested=ST;       
 			updateNextInstr();	
-			ST->parent = globalST;
+			ST->parent = globalST;			    //directing the parent pointer
 			updateNextInstr();
 			changeTable(globalST);				// Come back to globalsymbol table
 			updateNextInstr();
@@ -1223,19 +1243,19 @@ direct_declarator
 			updateNextInstr();
 		}
 		| direct_declarator ROUND_BRACKET_OPEN changetable ROUND_BRACKET_CLOSE
-		{        //similar as above
-			ST->name = $1->name;
+		{    
+			ST->name = $1->name;		//stating the name of the symbol table
 			updateNextInstr();
-			if($1->type->type !="void") 
+			if($1->type->type !="void")  	     //if function has a return type
 			{
-				sym *s = ST->lookup("return");
+				sym *s = ST->lookup("return");   //lookup for return value	
 				s->update($1->type);
 				updateNextInstr();
 				debug();			
 			}
 			$1->nested=ST;
 			updateNextInstr();
-			ST->parent = globalST;
+			ST->parent = globalST;		        //directing the parent pointer
 			updateNextInstr();
 			changeTable(globalST);				// Come back to globalsymbol table
 			updateNextInstr();
@@ -1248,15 +1268,15 @@ direct_declarator
 
 changetable
 		: %empty 
-		{ 														// Used for changing to symbol table for a function
+		{ 	// Used for changing to symbol table for a function
 			if(currSymbolPtr->nested==NULL) 
 			{
-				changeTable(new symtable(""));	// Function symbol table doesn't already exist
+				changeTable(new symtable(""));  	//Function symbol table doesn't already exist
 				updateNextInstr();
 			}
 			else 
 			{
-				changeTable(currSymbolPtr ->nested);						// Function symbol table already exists
+				changeTable(currSymbolPtr ->nested);//Function symbol table already exists
 				updateNextInstr();
 				emit("label", ST->name);
 				updateNextInstr();
@@ -1266,12 +1286,12 @@ changetable
 pointer 
 		: MUL type_qualifier_list_opt
 		{ 
-			$$ = new symboltype("ptr");
+			$$ = new symboltype("ptr");				//creating a symbol of type 'pointer'
 			updateNextInstr(); 
-		}          //create new pointer
+		}        
 		| MUL type_qualifier_list_opt pointer
 		{ 
-			$$ = new symboltype("ptr",$3);
+			$$ = new symboltype("ptr",$3);         //creating a symbol of type 'pointer'
 			updateNextInstr();
 		}
 		;
@@ -1320,7 +1340,7 @@ type_name
 initializer 
 		: assignment_expression
 		{
-			$$ = $1->loc;     //assignment
+			$$ = $1->location;  //equating the value of expression to initialiser
 		}
 		| CURLY_BRACKET_OPEN initializer_list CURLY_BRACKET_CLOSE        {  }
 		| CURLY_BRACKET_OPEN initializer_list COMMA CURLY_BRACKET_CLOSE  {  }
@@ -1363,24 +1383,24 @@ statement
 		: labeled_statement  {    }
 		| compound_statement
 		{	
-			$$ = $1;  
+			$$ = $1;  					//equating the value of the statements
 		}
 		| expression_statement
 		{ 
-			$$=new Statement();          //create new statement with same nextlist
-			$$->nextlist=$1->nextlist; 
+			$$=new Statement();         //create new statement with same nextList
+			$$->nextList=$1->nextList; 
 		}
 		| selection_statement
 		{
-			$$ = $1;  
+			$$ = $1;  					//equating the value of the statements
 		}
 		| iteration_statement
 		{
-			$$ = $1; 
+			$$ = $1;  					//equating the value of the statements 
 		}
 		| jump_statement
 		{
-			$$ = $1;   
+			$$ = $1;  					//equating the value of the statements   
 		}
 		;
 
@@ -1395,7 +1415,7 @@ labeled_statement
 compound_statement 
 		: CURLY_BRACKET_OPEN block_item_list_opt CURLY_BRACKET_CLOSE  
 		{
-			$$=$2;	  
+			$$=$2;  					//equating the value of the statements	  
 		}
 		;
 
@@ -1403,12 +1423,12 @@ compound_statement
 block_item_list 
 		: block_item
 		{
-			$$ = $1;              //simply equate
+			$$ = $1;  					//equating the value of the statements
 		}
 		| block_item_list M block_item
 		{
-			$$ = $3;			 //simply equate
-			backpatch($1->nextlist,$2);		//after $1, move to block_item via $2
+			$$ = $3;  					//equating the value of the statements
+			backpatch($1->nextList,$2);		//after $1, move to block_item via $2
 		}
 		;
 
@@ -1416,11 +1436,11 @@ block_item_list
 block_item 
 		: declaration
 		{
-			$$ = new Statement();    //new statement  
+			$$ = new Statement();    	//create a new Statement object  
 		}
 		| statement
 		{
-			$$ = $1;                 //simply equate   
+			$$ = $1;  					//equating the value of the statements
 		}
 		;
 
@@ -1428,11 +1448,11 @@ block_item
 block_item_list_opt 
 		: block_item_list  
 		{ 
-			$$ = $1;                 //simply equate  
+			$$ = $1;  					//equating the value of the statements 
 		}
 		| %empty           
 		{  
-			$$ = new Statement();        //new statement
+			$$ = new Statement();        //create a new Statement object
 		}
 		;
 
@@ -1445,48 +1465,48 @@ expression_statement
 expression_opt 
 		: expression
 		{
-			$$ = $1;                      //simply equate
+			$$ = $1;   					//equating the value of the statements
 		}
 		| %empty
 		{
-			$$ = new Expression();		   //new expression
-		}
+			$$ = new Expression();		//creating a new Expression object
+ 		}
 		;
 
 
 selection_statement 
 		: IF ROUND_BRACKET_OPEN expression N ROUND_BRACKET_CLOSE M statement N %prec "LOWER_THAN_ELSE"
 		{
-			backpatch($4->nextlist, nextinstr());//nextlist of N goes to nextinstr
+			backpatch($4->nextList, nextinstr());//nextList of N goes to nextinstr
 			updateNextInstr();
-			convertIntToBool($3);         //convert expression to bool
+			convertIntToBool($3);        		 //convert expression to bool
 			updateNextInstr();
-			$$ = new Statement();        //make new statement
+			$$ = new Statement();        		 //Create a new Statement object
 			updateNextInstr();
-			backpatch($3->truelist, $6);        //is expression is true, go to M i.e just before statement body
+			backpatch($3->trueList, $6);         //if expression is true, go to M i.e just before statement body
 			updateNextInstr();
-			list<int> temp = merge($3->falselist, $7->nextlist);   
-			//merge falselist of expression, nextlist of statement and second N
+			list<int> temp = merge($3->falseList, $7->nextList);   
+			//merge falseList of expression, nextList of statement and second N
 			updateNextInstr();
-			$$->nextlist = merge($8->nextlist, temp);
+			$$->nextList = merge($8->nextList, temp);
 			updateNextInstr();
 		}
 		| IF ROUND_BRACKET_OPEN expression N ROUND_BRACKET_CLOSE M statement N ELSE M statement
 		{
-			backpatch($4->nextlist, nextinstr());//nextlist of N goes to nextinstr
+			backpatch($4->nextList, nextinstr()); //nextList of N goes to nextinstr
 			updateNextInstr();
-			convertIntToBool($3);        //convert expression to bool
+			convertIntToBool($3);        		 //convert expression to bool
 			updateNextInstr();
-			$$ = new Statement();       //make new statement
+			$$ = new Statement();       		 //create a new Statement object
 			updateNextInstr();
-			backpatch($3->truelist, $6);    //when expression is true, go to M1 else go to M2
+			backpatch($3->trueList, $6);         //when expression is true, go to M1 else go to M2
 			updateNextInstr();
-			backpatch($3->falselist, $10);
+			backpatch($3->falseList, $10);
 			updateNextInstr();
-			list<int> temp = merge($7->nextlist, $8->nextlist);       
-			//merge the nextlists of the statements and second N
+			list<int> temp = merge($7->nextList, $8->nextList);       
+			//merge the nextLists of the statements and second N
 			updateNextInstr();
-			$$->nextlist = merge($11->nextlist,temp);	
+			$$->nextList = merge($11->nextList,temp);	
 			updateNextInstr();	
 		}
 		| SWITCH ROUND_BRACKET_OPEN expression ROUND_BRACKET_CLOSE statement {   }
@@ -1496,69 +1516,69 @@ selection_statement
 iteration_statement 
 		: WHILE M ROUND_BRACKET_OPEN expression ROUND_BRACKET_CLOSE M statement  
 		{
-			$$ = new Statement();    //create statement
+			$$ = new Statement();    		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($4);     //convert expression to bool
+			convertIntToBool($4);    	    //convert int value to bool
 			updateNextInstr();
-			backpatch($7->nextlist, $2);	// M1 to go back to expression again
+			backpatch($7->nextList, $2);	// M1 to go back to expression again
 			updateNextInstr();
-			backpatch($4->truelist, $6);	// M2 to go to statement if the expression is true
+			backpatch($4->trueList, $6);	// M2 to go to statement if the expression is true
 			updateNextInstr();
-			$$->nextlist = $4->falselist;   //when expression is false, move out of loop
+			$$->nextList = $4->falseList;   //when expression is false, move out of loop
 			updateNextInstr();
 			// Emit to prevent fallthrough
-			string str=convertIntToString($2);			
+			string str=convertInt2String($2);			
 			updateNextInstr();
 			emit("goto", str);
 			updateNextInstr();	
 		}
 		| DO M statement M WHILE ROUND_BRACKET_OPEN expression ROUND_BRACKET_CLOSE SEMICOLON
 		{
-			$$ = new Statement();     //create statement
+			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($7);      //convert to bool
+			convertIntToBool($7);      		//convert int value to bool
 			updateNextInstr();
-			backpatch($7->truelist, $2);						// M1 to go back to statement if expression is true
+			backpatch($7->trueList, $2);	// M1 to go back to statement if expression is true
 			updateNextInstr();
-			backpatch($3->nextlist, $4);						// M2 to go to check expression if statement is complete
+			backpatch($3->nextList, $4);	// M2 to go to check expression if statement is complete
 			updateNextInstr();
-			$$->nextlist = $7->falselist;                       //move out if statement is false
+			$$->nextList = $7->falseList;  //move out if statement is false
 			updateNextInstr();	
 		}
 		| FOR ROUND_BRACKET_OPEN expression_statement M expression_statement ROUND_BRACKET_CLOSE M statement
 		{
-			$$ = new Statement();   //create new statement
+			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($5);    //convert check expression to boolean
+			convertIntToBool($5);      		//convert int value to bool
 			updateNextInstr();
-			backpatch($5->truelist,$7);        //if expression is true, go to M2
+			backpatch($5->trueList,$7);     //if expression is true, go to M2
 			updateNextInstr();
-			backpatch($8->nextlist,$4);        //after statement, go back to M1
+			backpatch($8->nextList,$4);     //after statement, go back to M1
 			updateNextInstr();
-			string str=convertIntToString($4);
+			string str=convertInt2String($4);
 			updateNextInstr();
-			emit("goto", str);                 //prevent fallthrough
+			emit("goto", str);              //prevent fallthrough
 			updateNextInstr();
-			$$->nextlist = $5->falselist;      //move out if statement is false
+			$$->nextList = $5->falseList;   //move out if statement is false
 			updateNextInstr();
 		}
 		| FOR ROUND_BRACKET_OPEN expression_statement M expression_statement M expression N ROUND_BRACKET_CLOSE M statement
 		{
-			$$ = new Statement();		 //create new statement
+			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($5);  //convert check expression to boolean
+			convertIntToBool($5);           //convert int value to boolean
 			updateNextInstr();
-			backpatch($5->truelist, $10);	//if expression is true, go to M2
+			backpatch($5->trueList, $10);	//if expression is true, go to M2
 			updateNextInstr();
-			backpatch($8->nextlist, $4);	//after N, go back to M1
+			backpatch($8->nextList, $4);	//after N, go back to M1
 			updateNextInstr();
-			backpatch($11->nextlist, $6);	//statement go back to expression
+			backpatch($11->nextList, $6);	//statement go back to expression
 			updateNextInstr();
-			string str=convertIntToString($6);
+			string str=convertInt2String($6);
 			updateNextInstr();
 			emit("goto", str);				//prevent fallthrough
 			updateNextInstr();
-			$$->nextlist = $5->falselist;	//move out if statement is false	
+			$$->nextList = $5->falseList;	//move out if statement is false	
 			updateNextInstr();	
 		}
 		;
@@ -1567,29 +1587,29 @@ iteration_statement
 jump_statement 
 		: GOTO IDENTIFIER SEMICOLON
 		{
-			$$ = new Statement();  
+			$$ = new Statement();      		//create a new Statement object 
 		}
 		| CONTINUE SEMICOLON
 		{
-			$$ = new Statement();     
+			$$ = new Statement();           //create a new Statement object   
 		}
 		| BREAK SEMICOLON
 		{
-			$$ = new Statement();     
+			$$ = new Statement();      		//create a new Statement object    
 		}
 		| RETURN expression SEMICOLON
 		{
-			$$ = new Statement();
+			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
 			//emit return with the name of the return value
-			emit("return",$2->loc->name);
+			emit("return",$2->location->name);
 			updateNextInstr();
 		}
 		| RETURN SEMICOLON
 		{
-			$$ = new Statement();
+			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			emit("return","");                         //simply emit return
+			emit("return","");              //emit return
 			updateNextInstr();
 		}
 		;
@@ -1614,9 +1634,9 @@ function_definition
 		: declaration_specifiers declarator declaration_list_opt changetable compound_statement
 		{
 			updateNextInstr();
-			ST->parent=globalST;
+			ST->parent=globalST;	      //directing parent pointer to global ST
 			updateNextInstr();
-			changeTable(globalST);                     //once we come back to this at the end, change the table to global Symbol table
+			changeTable(globalST);        //once we come back to this at the end, change the table to global Symbol table
 			updateNextInstr();
 		}
 		;
@@ -1631,6 +1651,23 @@ declaration_list
 declaration_list_opt
 		: declaration_list  {   }
 		| %empty            {   }
+		;
+
+M 		: %empty 
+		{
+			// backpatching,stores the index of the next quad to be generated
+			// Used in various control statements
+			$$=nextinstr();
+		}   
+		;
+
+N 		: %empty
+		{
+			// backpatching,inserts a goto and stores the index of the next goto statement to guard against fallthrough
+			$$ =new Statement();        //we have defined nextList for Statements
+			$$->nextList=makelist(nextinstr());
+			emit("goto","");
+		}
 		;
 
 

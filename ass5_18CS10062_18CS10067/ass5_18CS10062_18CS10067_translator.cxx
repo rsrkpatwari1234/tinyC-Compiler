@@ -215,7 +215,7 @@ quad::quad(string res,int arg1,string op,string arg2)             //general cons
 	printpattern();
 	(*this).op=op;
 	printpattern();
-	(*this).arg1=convertIntToString(arg1);
+	(*this).arg1=convertInt2String(arg1);
 	printpattern();
 }
 quad::quad(string res,float arg1,string op,string arg2)           //general constructor for quad
@@ -227,7 +227,7 @@ quad::quad(string res,float arg1,string op,string arg2)           //general cons
 	printpattern();
 	(*this).op=op;
 	printpattern();
-	(*this).arg1=convertFloatToString(arg1);
+	(*this).arg1=convertFloat2String(arg1);
 	printpattern();
 }
 void quad::print() 
@@ -456,7 +456,7 @@ void generateSpaces(int n)
 		cout<<" ";
 	printpattern();
 }
-string convertIntToString(int a)                    //to convert int to string
+string convertInt2String(int a)                    //to convert int to string
 {
 	stringstream strs;                      //use buffer stringstream
     strs<<a; 
@@ -465,7 +465,7 @@ string convertIntToString(int a)                    //to convert int to string
 	string str=string(integer);
 	return str;                              //return string
 }
-string convertFloatToString(float x)                        //Take float as input and produce string as output
+string convertFloat2String(float x)                        //Take float as input and produce string as output
 {
 	std::ostringstream buff;
 	buff<<x;
@@ -577,7 +577,7 @@ bool compareSymbolType(symboltype* t1,symboltype* t2)
 }
 void backpatch(list<int> list1,int addr)                 //backpatching
 {
-	string str=convertIntToString(addr);              //get string form of the address
+	string str=convertInt2String(addr);              //get string form of the address
 	list<int>::iterator it;
 	it=list1.begin();
 	printpattern();
@@ -603,9 +603,9 @@ Expression* convertIntToBool(Expression* e)
 {	// Convert any Expression to bool using standard procedure as given in book
 	if(e->type!="bool")                
 	{
-		e->falselist=makelist(nextinstr());    //update the falselist, truelist and also emit general goto statements
-		emit("==","",e->loc->name,"0");
-		e->truelist=makelist(nextinstr());
+		e->falseList=makelist(nextinstr());    //update the falseList, trueList and also emit general goto statements
+		emit("==","",e->location->name,"0");
+		e->trueList=makelist(nextinstr());
 		emit("goto","");
 	}
 }
@@ -629,21 +629,21 @@ Expression* convertBoolToInt(Expression* e)
 	if(e->type=="bool") 
 	{
 		printpattern();
-		e->loc=gentemp(new symboltype("int"));         //use general goto statements and standard procedure
+		e->location=gentemp(new symboltype("int"));         //use general goto statements and standard procedure
 		printpattern();
-		backpatch(e->truelist,nextinstr());
+		backpatch(e->trueList,nextinstr());
 		printpattern();
-		emit("=",e->loc->name,"true");
+		emit("=",e->location->name,"true");
 		printpattern();
 		int p=nextinstr()+1;
 		printpattern();
-		string str=convertIntToString(p);
+		string str=convertInt2String(p);
 		printpattern();
 		emit("goto",str);
 		printpattern();
-		backpatch(e->falselist,nextinstr());
+		backpatch(e->falseList,nextinstr());
 		printpattern();
-		emit("=",e->loc->name,"false");
+		emit("=",e->location->name,"false");
 		printpattern();
 	}
 }
@@ -654,7 +654,7 @@ int nextinstr()
 }
 sym* gentemp(symboltype* t, string str_new) 
 {           //generate temp variable
-	string tmp_name = "t"+convertIntToString(ST->count++);             //generate name of temporary
+	string tmp_name = "t"+convertInt2String(ST->count++);             //generate name of temporary
 	sym* s = new sym(tmp_name);
 	(*s).type = t;
 	(*s).size=computeSize(t);                        //calculate its size
@@ -691,7 +691,7 @@ string printType(symboltype* t)                    //Print type of variable(imp 
 	else if(t->type.compare("ptr")==0) return bt.type[5]+"("+printType(t->arrtype)+")";       //recursive for ptr
 	else if(t->type.compare("arr")==0) 
 	{
-		string str=convertIntToString(t->width);                                //recursive for arr1s
+		string str=convertInt2String(t->width);                                //recursive for arr1s
 		return bt.type[6]+"("+str+","+printType(t->arrtype)+")";
 	}
 	else if(t->type.compare("func")==0) return bt.type[7];

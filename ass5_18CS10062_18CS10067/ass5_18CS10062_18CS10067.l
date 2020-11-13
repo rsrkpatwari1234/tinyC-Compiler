@@ -125,12 +125,12 @@ WS			[ \t\n]
 {WHILE}		return WHILE;
 
 {ID}		{
-				yylval.symp = ST->lookup(yytext);
+				yylval.sym_ptr = ST->lookup(yytext);
 				return IDENTIFIER;
 			}
 
 {INT_CONST}	{
-				yylval.intval = atoi(yytext);
+				yylval.int_value = atoi(yytext);
 				return INTEGER_CONSTANT;
 			}
 
