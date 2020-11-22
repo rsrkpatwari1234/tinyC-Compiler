@@ -3,159 +3,253 @@
 
 #include <bits/stdc++.h>
 
-extern  char* yytext;
-extern  int yyparse();
-
 using namespace std;
-#define lsit list<sym>::iterator
-#define listi list<int>
-#define lstsym list<sym>
-#define vec vector
+
+// MACROS
+#define ltsit list<sym>::iterator
+#define ltiit list<int>::iterator
+#define ltstit list<symtable*>::iterator
+#define qdit vector<quad>::iterator
+#define ltsym list<sym>
+#define ltst list<symtable*>
 #define stri string
-#define vd void
-class sym;						//stands for an entry in ST
-class symboltype;				//stands for the type of a symbol in ST
-class symtable;					//stands for ST
-class quad;						//stands for a single entry in the quad Array
-class quadArray;				//stands for the Array of quads
 
 
+// class names
+// format of the entry of a symbol table 
+class sym;
+// description of symboltype attribute of symbol table						
+class symboltype;				
+// description of symbol table, containing associated functions for lookup, printing and updating
+class symtable;
+// class that describes a quad					
+class quad;						
+// class that describes the quad array object
+class quadArray;				
 
-class sym 
-{                      //For an entry in ST, we have
+
+// CLASSES
+
+// Information stored in symbol table
+// 1. name of symbol
+// 2. symbol type (which is also a class as elaborated below)
+// 3. symbol size
+// 4. offset of symbol
+// 5. initial value of symbol
+class sym {                                    
+	
 	public:
-		stri name;				//denotes the name of the symbol
-		symboltype *type;			//denotes the type of the symbol
-		int size;					//denotes the size of the symbol
-		int offset;					//denotes the offset of symbol in ST
-		symtable* nested;			//points to the nested symbol table
-		stri val;				    //initial value of the symbol if specified
+		stri name; // 1				
+		symboltype *type; // 2			
+		int size; // 3				
+		int offset;	// 4			
+		symtable* nested; 
+		stri val; // 5	
 
-		//Constructor
+		// Constructor
 		sym (stri , stri t="int", symboltype* ptr = NULL, int width = 0);
-		//Update the ST Entry 
-		sym* update(symboltype*); 	// A method to update different fields of an existing entry.
+		// Update the ST Entry 
+		// A method to update symboltype of current symbol (and change size etc. accordingly)
+		sym* update(symboltype*); 	
 };
-typedef sym s;
-class symboltype 
-{                      //For the Type of Symbol, we have
-	public:
-		stri type;					//stores the type of symbol. 
-		int width;					    //stores the size of Array (if we encounter an Array) and it is 1 in default case
-		symboltype* arrtype;			//for arr1s which are multidimensional, we need this
-		//Constructor
+
+// Attributes that constitute the symbol type
+// 1. string name for type of symbol
+// 2. width (for size of array), constructur assigns 1 by default
+// 3. arrtype, needed for multidim arrays 
+class symboltype {                            
+	
+    public:
+		stri type;				// 1 
+		int width;			    // 2
+		symboltype* arrtype;		// 3
+		// Constructor
 		symboltype(stri , symboltype* ptr = NULL, int width = 1);
 };
-typedef symboltype symtyp;
-class symtable 
-{ 					//For the Symbol Table Class, we have
-	public:
-		stri name;				//Name of the Table
-		int count;					//Count of the temporary variables
-		lstsym table; 			//The table of symbols which is essentially a list of sym
-		symtable* parent;			//Parent ST of the current ST
-		//Constructor
+
+// Attributes stored for the symbol table
+// 1. Name of the symbol table
+// 2. Number of temporary variables
+// 3. a list of symbols (sym)
+// 4. parent symbol table of current symbol table
+class symtable { 				
+	
+    public: 
+		stri name;				// 1		
+		int count;				// 2
+		ltsym table; 			// 3
+		symtable* parent;		// 4
+		// Constructor
 		symtable (stri name="NULL");
-		//Lookup for a symbol in ST
-		s* lookup (stri);		
-		//Print the ST						
-		vd print();	
-		//Update the ST				            			
-		vd update();						        			
+		// Lookup for a symbol in symbol table
+		sym* lookup (stri);		
+		// Print the symbol table					
+		void print();	
+		// Update the symbol table      			
+		void update();						        			
 };
-class quad 
-{ 			//A single quad has four components:
+
+// format of a quad 
+// A quad contains 4 attributes (all are strings)
+// 1. Result of expression
+// 2. Operator of experssion
+// 3. First Argument
+// 4. Second Argument
+class quad {                   
+			
 	public:
-		stri res;					// Result
-		stri op;					// Operator
-		stri arg1;				// Argument 1
-		stri arg2;				// Argument 2
+		stri res;				// 1
+		stri op;				// 2
+		stri arg1;				// 3
+		stri arg2;				// 4
 
-		//Print the Quad
-		vd print();	
-		vd type1();      //common printing types
-		vd type2();
+		// Functions to print the quad
+		void print();	
+		void print1();          
+		void print2();
 
-		//Constructors							
+		// Constructors (arg2 delafults to none)
 		quad (stri , stri , stri op = "=", stri arg2 = "");			
 		quad (stri , int , stri op = "=", stri arg2 = "");				
 		quad (stri , float , stri op = "=", stri arg2 = "");			
 };
 
-class quadArray 
-{ 		//Quad Array
+// quadArray class contains
+// 1. a vector of quads
+class quadArray                
+{ 		
 	public:
-		vec<quad> Array;		                    //Simply an Array (vector) of quads
-		//Print the quadArray
-		vd print();								
+		vector <quad> Array;   // 1
+		// Print the quadArray
+		void print();								
 };
 
-class basicType 
-{                        //To denote a basic type
-	public:
-		vec<stri> type;                    //type name
-		vec<int> size;                       //size
-		vd addType(stri ,int );
+// Denotes basic variable types (not user defined)
+class basicType {                                
+	
+    public:
+		// type name (e.g. float)
+		vector <stri> type;			
+		// type size (in bytes)
+		vector <int> size;			
+		// add a new basic type
+		void addType(stri ,int );
 };
 
-extern symtable* ST;						// denotes the current Symbol Table
-extern symtable* globalST;				    // denotes the Global Symbol Table
-extern s* currSymbolPtr;					    // denotes the latest encountered symbol
-extern quadArray Q;							// denotes the quad Array
-extern basicType bt;                        // denotes the Type ST
-extern long long int instr_count;			// denotes count of instr
+// STRUCTS
+
+// Statement
+struct Statement {
+	// nextlist for statements
+	list<int> nextList;		
+};
+
+// Array (to handle 1D and multi D arrays) 
+struct Array {
+	// Used for type of Array: may be ptr or arr
+	stri atype;				
+	// Location used to compute address of Array
+	sym* location;			
+	// pointer to the symbol table entry	
+	sym* Array;				
+	// type of the subarray generated (needed for multidim arrays)
+	symboltype* type;		
+};
+
+// Expression
+struct Expression {
+	// pointer to the symbol table entry
+	sym* location;			
+	// to store type of expression out of int, char, float, bool
+	stri type; 				
+	// truelist for boolean expressions
+	list<int> trueList;		
+	// falselist for boolean expressions
+	list<int> falseList;	
+	// for statement expressions
+	list<int> nextList;		
+};
+
+
+// typedefs
+typedef Expression* expr;
+typedef symboltype symtyp;
+
+// extern (include external variables)
+extern char* yytext;
+extern int yyparse();
+extern symtable* ST;			// denotes the current Symbol Table
+extern symtable* globalST;		// global symbol table
+extern sym* currSymbolPtr;		// pointer to current symbol
+extern quadArray Q;				// quad array (for TAC)
+extern basicType bt;            // basic types
+extern long long int instr_count;// denotes count of instr
 extern bool debug_on;			// bool for printing debug output
 
-stri convertInt2String(int );
-stri convertFloat2String(float );
-vd generateSpaces(int );
-//Different Attributes for Different Types and Extra Functions
+// just to format the output
+void formatOutput(int);
 
-s* gentemp (symboltype* , stri init = "");	  //generate a temporary variable and insert it in the current ST
+// generate a temporary variable and insert it in the current symbol table
+sym* gentemp (symtyp* , stri init = "");	  
 
-//Emit Functions
-vd emit(stri , stri , stri arg1="", stri arg2 = "");  
-vd emit(stri , stri , int, stri arg2 = "");		  
-vd emit(stri , stri , float , stri arg2 = "");   
+// Emit Functions
+void emit(stri , stri , int, stri arg = "");		  
+void emit(stri , stri , float , stri arg = "");   
+void emit(stri , stri , stri arg1="", stri arg2 = "");
 
-//Backpatching and related functions
-vd backpatch (list <int> , int );
-listi makelist (int );							    // Make a new list contaninig an integer
-listi merge (list<int> &l1, list <int> &l2);		// Merge two lists into a single list
-
+// backpatch
+// Input: list of addresses that have dangling exits, integer (address value) to be filled in (backpatched)
+// Output: backpatched quads/instructions
+// Algo: iterate through entire vector of quads denoted by Array and set the result attribute to the second argument int given
+// Purpose: to do the backpatching, i.e. fill in address for danging exits (res part)
+void backpatch (list <int> , int );
+// makelist
+// Input: Initial value
+// Output: A new list containing the initial value
+// Algo: Generate list of variables using newlist function of stl library with one node, having the init value
+// Purpose: to construct the list of dangling exits
+list<int> makelist (int );							    // Make a new list contaninig an integer
+// merge
+// Input: two lists of dangling exits
+// Output: merged list of dangling exits
+// Algo: simply concatenate two lists (here inbuilt c++ stl, merge function available for lists is used)
+// Purpose: to unite lists of dangling exits
+list<int> merge (list<int> &l1, list <int> &l2);		// Merge two lists into a single list
 int nextinstr();										// Returns the next instruction number
-vd updateNextInstr();;
+void updateNextInstr();
+// void updateNextInstr();
 
-vd debug();											// Used for printing debugging output
-//Type checking and conversion functions
-s* convertType(sym*, stri);								// for type conversion
-bool compareSymbolType(sym* &s1, sym* &s2);				// check for same type of two symbol table entries
-bool compareSymbolType(symboltype*, symboltype*);	// check for same type of two symboltype objects
-int computeSize (symboltype *);						// calculate size of symbol type
-stri printType(symboltype *);							// print type of symbol
-vd changeTable (symtable* );					//to change current table
+// For printing debugging output
+void debug();											
 
-//Other structures
-struct Statement {
-	listi nextList;					//nextList for Statement
-};
+// Type checking and conversion functions
+// for type conversion (symbol to be converted, target type as a string)
+sym* convertType(sym*, stri);
+// compare the entire symbol table entries					
+bool compareSymbolType(sym* &s1, sym* &s2);
+// compare just the symboltype attribute
+bool compareSymbolType(symtyp*, symtyp*);	  
+// compute size of a given symbol type
+int computeSize(symtyp*);						
+// print type name of symbol
+stri printType(symtyp*);	
+// to make new symbol table						
+void changeTable(symtable*);					
 
-struct Array {
-	stri atype;				//Used for type of Array: may be ptr or arr
-	s* location;					//locationation used to compute address of Array
-	s* Array;					//pointer to the symbol table entry
-	symboltype* type;			//type of the subarr1 generated (important for multidimensional arr1s)
-};
-
-struct Expression {
-	s* location;								//pointer to the symbol table entry
-	stri type; 							//to store whether the expression is of type int or bool or float or char
-	listi trueList;						//fruelist for boolean expressions
-	listi falseList;					//falseList for boolean expressions
-	listi nextList;						//for statement expressions
-};
-typedef Expression* Exps;
-Exps convertIntToBool(Exps);				// convert int expression to boolean
-Exps convertBoolToInt(Exps);				// convert boolean expression to int
+// Type conversion functions (for typecasting needed for expressions)
+// convert int to string
+stri convertInt2String(int);                
+// convert float to string
+stri convertFloat2String(float);            
+// convertInt2Bool
+// convert int to boolean
+// Input: int expression
+// Output: bool expression
+expr convertInt2Bool(expr);				
+// convertBool2Int
+// convert boolean to int
+// Input: bool expression 
+// Output: int expression 
+expr convertBool2Int(expr);				
 
 #endif

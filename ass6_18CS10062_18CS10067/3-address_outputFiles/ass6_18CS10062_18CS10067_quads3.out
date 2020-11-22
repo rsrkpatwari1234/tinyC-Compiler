@@ -1,0 +1,104 @@
+_________________________________________________________________________________
+Generated Quads for the program
+  0 : t000	=	0
+  1 : if  a ==t000	goto 4
+  2 : goto 6
+  3 : goto 12
+  4 : return	b
+  5 : goto -1
+  6 : t001	=	b % a
+  7 : param	t001
+  8 : param	a
+  9 : t002	=	call euclidGCD, 2
+ 10 : return	t002
+ 11 : goto -1
+ 12 : param	_0
+ 13 : t003	=	call printStr, 1
+ 14 : param	_1
+ 15 : t004	=	call printStr, 1
+ 16 : t005	=	1
+ 17 : err	=	t005
+ 18 : t006	=	& err
+ 19 : param	t006
+ 20 : t007	=	call readInt, 1
+ 21 : a	=	t007
+ 22 : t008	=	t007
+ 23 : param	_2
+ 24 : t009	=	call printStr, 1
+ 25 : t010	=	& err
+ 26 : param	t010
+ 27 : t011	=	call readInt, 1
+ 28 : b	=	t011
+ 29 : t012	=	t011
+ 30 : param	a
+ 31 : param	b
+ 32 : t013	=	call euclidGCD, 2
+ 33 : gcd	=	t013
+ 34 : t014	=	t013
+ 35 : param	_3
+ 36 : t015	=	call printStr, 1
+ 37 : param	gcd
+ 38 : t016	=	call printInt, 1
+ 39 : param	_4
+ 40 : t017	=	call printStr, 1
+ 41 : t018	=	0
+ 42 : return	t018
+_________________________________________________________________________________
+Symbol table Maintained For the Given Program
+____________________________________________ Global ____________________________________________
+Offset = 0
+Start Quad Index = 0
+End Quad Index =  0
+Name	Value	var_type	size	Offset	Type
+
+printInt	null	func		0	-1	ptr-to-St( Global )Int
+readInt	null	func		0	-1	ptr-to-St( Global )Int
+printStr	null	func		0	-1	ptr-to-St( Global )Int
+euclidGCD	null	func		0	-1	ptr-to-St( euclidGCD )Int
+main	null	func		0	-1	ptr-to-St( main )Int
+
+____________________________________________________________________________________________
+_________________________________________________________________________________
+____________________________________________ euclidGCD ____________________________________________
+Offset = -20
+Start Quad Index = 0
+End Quad Index =  11
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+a	null	param		4	-8	Int
+b	null	param		4	-4	Int
+t000	0	temp		4	-12	Int
+t001	null	temp		4	-16	Int
+t002	null	temp		4	-20	Int
+
+____________________________________________________________________________________________
+____________________________________________ main ____________________________________________
+Offset = -88
+Start Quad Index = 12
+End Quad Index =  42
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+a	null	local		4	-4	Int
+b	null	local		4	-8	Int
+gcd	null	local		4	-12	Int
+t003	null	temp		4	-16	Int
+t004	null	temp		4	-20	Int
+err	1	local		4	-24	Int
+t005	1	temp		4	-28	Int
+t006	null	temp		8	-36	ptr(Int)
+t007	null	temp		4	-40	Int
+t008	null	temp		4	-44	Int
+t009	null	temp		4	-48	Int
+t010	null	temp		8	-56	ptr(Int)
+t011	null	temp		4	-60	Int
+t012	null	temp		4	-64	Int
+t013	null	temp		4	-68	Int
+t014	null	temp		4	-72	Int
+t015	null	temp		4	-76	Int
+t016	null	temp		4	-80	Int
+t017	null	temp		4	-84	Int
+t018	0	temp		4	-88	Int
+
+____________________________________________________________________________________________

@@ -1,0 +1,162 @@
+_________________________________________________________________________________
+Generated Quads for the program
+  0 : t000	=	100
+  1 : t001	=	0
+  2 : t002	=	0
+  3 : t004	=	t002 * 4
+  4 : t003	=	t001 + t004
+  5 : t005	=	0
+  6 : f[t003]	=	t005
+  7 : t006	=	t005
+  8 : t007	=	0
+  9 : t008	=	1
+ 10 : t010	=	t008 * 4
+ 11 : t009	=	t007 + t010
+ 12 : t011	=	1
+ 13 : f[t009]	=	t011
+ 14 : t012	=	t011
+ 15 : t013	=	2
+ 16 : i	=	t013
+ 17 : t014	=	t013
+ 18 : if  i <=n	goto 24
+ 19 : goto 43
+ 20 : goto 43
+ 21 : t015	=	i
+ 22 : i	=	i + 1
+ 23 : goto 18
+ 24 : t016	=	0
+ 25 : t018	=	i * 4
+ 26 : t017	=	t016 + t018
+ 27 : t019	=	0
+ 28 : t020	=	1
+ 29 : t021	=	i - t020
+ 30 : t023	=	t021 * 4
+ 31 : t022	=	t019 + t023
+ 32 : t024	=	f[t022]
+ 33 : t025	=	0
+ 34 : t026	=	2
+ 35 : t027	=	i - t026
+ 36 : t029	=	t027 * 4
+ 37 : t028	=	t025 + t029
+ 38 : t030	=	f[t028]
+ 39 : t031	=	t024 + t030
+ 40 : f[t017]	=	t031
+ 41 : t032	=	t031
+ 42 : goto 21
+ 43 : t033	=	0
+ 44 : t035	=	n * 4
+ 45 : t034	=	t033 + t035
+ 46 : t036	=	f[t034]
+ 47 : return	t036
+ 48 : t037	=	1
+ 49 : err	=	t037
+ 50 : param	_0
+ 51 : t038	=	call printStr, 1
+ 52 : param	_1
+ 53 : t039	=	call printStr, 1
+ 54 : t040	=	& err
+ 55 : param	t040
+ 56 : t041	=	call readInt, 1
+ 57 : n	=	t041
+ 58 : t042	=	t041
+ 59 : param	n
+ 60 : t043	=	call fib, 1
+ 61 : fib_num	=	t043
+ 62 : t044	=	t043
+ 63 : param	_2
+ 64 : t045	=	call printStr, 1
+ 65 : param	fib_num
+ 66 : t046	=	call printInt, 1
+ 67 : param	_3
+ 68 : t047	=	call printStr, 1
+ 69 : t048	=	0
+ 70 : return	t048
+_________________________________________________________________________________
+Symbol table Maintained For the Given Program
+____________________________________________ Global ____________________________________________
+Offset = 0
+Start Quad Index = 0
+End Quad Index =  0
+Name	Value	var_type	size	Offset	Type
+
+printInt	null	func		0	-1	ptr-to-St( Global )Int
+readInt	null	func		0	-1	ptr-to-St( Global )Int
+printStr	null	func		0	-1	ptr-to-St( Global )Int
+fib	null	func		0	-1	ptr-to-St( fib )Int
+main	null	func		0	-1	ptr-to-St( main )Int
+
+____________________________________________________________________________________________
+_________________________________________________________________________________
+____________________________________________ fib ____________________________________________
+Offset = -556
+Start Quad Index = 0
+End Quad Index =  47
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+n	null	param		4	-4	Int
+f	null	local		400	-404	array(100,Int)
+t000	100	temp		4	-408	Int
+i	null	local		4	-412	Int
+t001	0	temp		4	-416	Int
+t002	0	temp		4	-420	Int
+t003	null	temp		4	-424	Int
+t004	null	temp		4	-428	Int
+t005	0	temp		4	-432	Int
+t006	null	temp		4	-436	Int
+t007	0	temp		4	-440	Int
+t008	1	temp		4	-444	Int
+t009	null	temp		4	-448	Int
+t010	null	temp		4	-452	Int
+t011	1	temp		4	-456	Int
+t012	null	temp		4	-460	Int
+t013	2	temp		4	-464	Int
+t014	null	temp		4	-468	Int
+t015	null	temp		4	-472	Int
+t016	0	temp		4	-476	Int
+t017	null	temp		4	-480	Int
+t018	null	temp		4	-484	Int
+t019	0	temp		4	-488	Int
+t020	1	temp		4	-492	Int
+t021	null	temp		4	-496	Int
+t022	null	temp		4	-500	Int
+t023	null	temp		4	-504	Int
+t024	null	temp		4	-508	Int
+t025	0	temp		4	-512	Int
+t026	2	temp		4	-516	Int
+t027	null	temp		4	-520	Int
+t028	null	temp		4	-524	Int
+t029	null	temp		4	-528	Int
+t030	null	temp		4	-532	Int
+t031	null	temp		4	-536	Int
+t032	null	temp		4	-540	Int
+t033	0	temp		4	-544	Int
+t034	null	temp		4	-548	Int
+t035	null	temp		4	-552	Int
+t036	null	temp		4	-556	Int
+
+____________________________________________________________________________________________
+____________________________________________ main ____________________________________________
+Offset = -64
+Start Quad Index = 48
+End Quad Index =  70
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+n	null	local		4	-4	Int
+fib_num	null	local		4	-8	Int
+err	1	local		4	-12	Int
+t037	1	temp		4	-16	Int
+t038	null	temp		4	-20	Int
+t039	null	temp		4	-24	Int
+t040	null	temp		8	-32	ptr(Int)
+t041	null	temp		4	-36	Int
+t042	null	temp		4	-40	Int
+t043	null	temp		4	-44	Int
+t044	null	temp		4	-48	Int
+t045	null	temp		4	-52	Int
+t046	null	temp		4	-56	Int
+t047	null	temp		4	-60	Int
+t048	0	temp		4	-64	Int
+
+____________________________________________________________________________________________

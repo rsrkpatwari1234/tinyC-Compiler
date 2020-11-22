@@ -5,58 +5,58 @@ ________________________________________________________________________________
 
 L0: main: 
 L1:     t0 = 0
-L2:     sum = t0
-L3:     t1 = 'a'
-L4:     a = t1
-L5:     t2 = 5
-L6:     t3 = 5
+L2:     i = t0
+L3:     t1 = 12
+L4:     n = t1
+L5:     t2 = 100
+L6:     j = t2
 L7:     t4 = 5
-L8:     t5 = 5
-L9:     n = t5
-L10:     t7 = 100
-L11:     j = t7
-L12:     t9 = 0
-L13:     i = t9
-L14:     t11 = 5
-L15:     if i < t11 goto 17
-L16:     goto 24
-L17:     t12 = i
-L18:     i = i + 1
-L19:     j = j + 1
-L20:     t13 = i * 4
-L21:     t14 = i * j
-L22:     p[t13] = t14
-L23:     goto 14
-L24:     t16 = i * 4
-L25:     t17 = p[t16]
-L26:     t18 = sum + t17
-L27:     sum = t18
-L28:     if i < n goto 24
-L29:     goto 30
-L30:     t20 = 0
-L31:     i = t20
-L32:     if i < n goto 37
-L33:     goto 52
-L34:     t22 = i
-L35:     i = i + 1
-L36:     goto 32
-L37:     t23 = 0
-L38:     j = t23
-L39:     if j < n goto 44
-L40:     goto 34
-L41:     t25 = j
-L42:     j = j + 1
-L43:     goto 39
-L44:     t26 = i * 20
-L45:     t28 = j * 4
-L46:     t27 = t26 + t28
-L47:     t29 = i * j
-L48:     t30 = sum + t29
-L49:     dp[t27] = t30
-L50:     goto 41
-L51:     goto 34
-L52:     t32 = 0
-L53:     return t32
+L8:     t5 = 0
+L9:     sum = t5
+L10:     if i < n goto 12
+L11:     goto 18
+L12:     t6 = i
+L13:     i = i + 1
+L14:     t7 = i * 4
+L15:     t8 = arr[t7]
+L16:     sum = t8
+L17:     goto 10
+L18:     t10 = 0
+L19:     sum = t10
+L20:     t12 = 5
+L21:     t13 = 5
+L22:     t14 = 0
+L23:     i = t14
+L24:     if i < n goto 29
+L25:     goto 44
+L26:     t16 = i
+L27:     i = i + 1
+L28:     goto 24
+L29:     t17 = 0
+L30:     j = t17
+L31:     if j < n goto 36
+L32:     goto 26
+L33:     t19 = j
+L34:     j = j + 1
+L35:     goto 31
+L36:     t20 = i * 20
+L37:     t22 = j * 4
+L38:     t21 = t20 + t22
+L39:     t23 = i * j
+L40:     t24 = sum / t23
+L41:     mat[t21] = t24
+L42:     goto 33
+L43:     goto 26
+L44:     t26 = 0
+L45:     return t26
+L46:     j = j - 1
+L47:     i = i + 1
+L48:     t27 = i * 4
+L49:     t28 = i - j
+L50:     arr[t27] = t28
+L51:     t30 = 16
+L52:     if i < t30 goto 46
+L53:     goto 
 ____________________________________________________________________________________________________
 ____________________________________________________________________________________________________
 Table Name: Global			 Parent Name: NULL
@@ -72,45 +72,42 @@ ________________________________________________________________________________
 Name           Type                Initial Value       Size           Offset         Nested
                                                                                                     
 return         int                 -                   4              0              NULL
-i              int                 -                   4              4              NULL
-j              int                 -                   4              8              NULL
-n              int                 -                   4              12             NULL
-sum            int                 0                   4              16             NULL
-t0             int                 0                   4              20             NULL
-a              char                'a'                 1              24             NULL
-t1             char                'a'                 1              25             NULL
-p              arr(5,int)          -                   20             26             NULL
-t2             int                 5                   4              46             NULL
-dp             arr(5,arr(5,int))   -                   100            50             NULL
-t3             int                 5                   4              150            NULL
-t4             int                 5                   4              154            NULL
-t5             int                 5                   4              158            NULL
-t6             int                                     4              162            NULL
-t7             int                 100                 4              166            NULL
-t8             int                                     4              170            NULL
-t9             int                 0                   4              174            NULL
-t10            int                                     4              178            NULL
-t11            int                 5                   4              182            NULL
-t12            int                                     4              186            NULL
-t13            int                                     4              190            NULL
-t14            int                                     4              194            NULL
-t15            int                                     4              198            NULL
-t16            int                                     4              202            NULL
-t17            int                                     4              206            NULL
-t18            int                                     4              210            NULL
-t19            int                                     4              214            NULL
-t20            int                 0                   4              218            NULL
-t21            int                                     4              222            NULL
-t22            int                                     4              226            NULL
-t23            int                 0                   4              230            NULL
-t24            int                                     4              234            NULL
-t25            int                                     4              238            NULL
-t26            int                                     4              242            NULL
-t27            int                                     4              246            NULL
-t28            int                                     4              250            NULL
-t29            int                                     4              254            NULL
-t30            int                                     4              258            NULL
-t31            int                                     4              262            NULL
-t32            int                 0                   4              266            NULL
+i              int                 0                   4              4              NULL
+t0             int                 0                   4              8              NULL
+j              int                 -                   4              12             NULL
+n              int                 12                  4              16             NULL
+t1             int                 12                  4              20             NULL
+t2             int                 100                 4              24             NULL
+t3             int                                     4              28             NULL
+arr            arr(5,int)          -                   20             32             NULL
+t4             int                 5                   4              52             NULL
+sum            int                 0                   4              56             NULL
+t5             int                 0                   4              60             NULL
+t6             int                                     4              64             NULL
+t7             int                                     4              68             NULL
+t8             int                                     4              72             NULL
+t9             int                                     4              76             NULL
+t10            int                 0                   4              80             NULL
+t11            int                                     4              84             NULL
+mat            arr(5,arr(5,int))   -                   100            88             NULL
+t12            int                 5                   4              188            NULL
+t13            int                 5                   4              192            NULL
+t14            int                 0                   4              196            NULL
+t15            int                                     4              200            NULL
+t16            int                                     4              204            NULL
+t17            int                 0                   4              208            NULL
+t18            int                                     4              212            NULL
+t19            int                                     4              216            NULL
+t20            int                                     4              220            NULL
+t21            int                                     4              224            NULL
+t22            int                                     4              228            NULL
+t23            int                                     4              232            NULL
+t24            int                                     4              236            NULL
+t25            int                                     4              240            NULL
+t26            int                 0                   4              244            NULL
+t27            int                                     4              248            NULL
+t28            int                                     4              252            NULL
+t29            int                                     4              256            NULL
+t30            int                 16                  4              260            NULL
 ----------------------------------------------------------------------------------------------------
 

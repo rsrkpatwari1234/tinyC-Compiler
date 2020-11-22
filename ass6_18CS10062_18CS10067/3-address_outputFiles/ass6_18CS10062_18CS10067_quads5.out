@@ -1,0 +1,235 @@
+_________________________________________________________________________________
+Generated Quads for the program
+  0 : if  a >b	goto 3
+  1 : goto 5
+  2 : goto 7
+  3 : return	a
+  4 : goto -1
+  5 : return	b
+  6 : goto -1
+  7 : t000	=	100
+  8 : t001	=	0
+  9 : t002	=	0
+ 10 : t004	=	t002 * 4
+ 11 : t003	=	t001 + t004
+ 12 : t005	=	0
+ 13 : val[t003]	=	t005
+ 14 : t006	=	t005
+ 15 : t007	=	0
+ 16 : max_val	=	t007
+ 17 : t008	=	1
+ 18 : i	=	t008
+ 19 : t009	=	t008
+ 20 : if  i <=n	goto 26
+ 21 : goto 61
+ 22 : goto 61
+ 23 : t010	=	i
+ 24 : i	=	i + 1
+ 25 : goto 20
+ 26 : t011	=	0
+ 27 : max_val	=	t011
+ 28 : t012	=	0
+ 29 : j	=	t012
+ 30 : t013	=	t012
+ 31 : if  j <i	goto 37
+ 32 : goto 55
+ 33 : goto 55
+ 34 : t014	=	j
+ 35 : j	=	j + 1
+ 36 : goto 31
+ 37 : t015	=	0
+ 38 : t017	=	j * 4
+ 39 : t016	=	t015 + t017
+ 40 : t018	=	price[t016]
+ 41 : t019	=	0
+ 42 : t020	=	i - j
+ 43 : t021	=	1
+ 44 : t022	=	t020 - t021
+ 45 : t024	=	t022 * 4
+ 46 : t023	=	t019 + t024
+ 47 : t025	=	val[t023]
+ 48 : t026	=	t018 + t025
+ 49 : param	max_val
+ 50 : param	t026
+ 51 : t027	=	call max, 2
+ 52 : max_val	=	t027
+ 53 : t028	=	t027
+ 54 : goto 34
+ 55 : t029	=	0
+ 56 : t031	=	i * 4
+ 57 : t030	=	t029 + t031
+ 58 : val[t030]	=	max_val
+ 59 : t032	=	max_val
+ 60 : goto 23
+ 61 : t033	=	0
+ 62 : t035	=	n * 4
+ 63 : t034	=	t033 + t035
+ 64 : t036	=	val[t034]
+ 65 : return	t036
+ 66 : t037	=	100
+ 67 : param	_0
+ 68 : t038	=	call printStr, 1
+ 69 : param	_1
+ 70 : t039	=	call printStr, 1
+ 71 : t040	=	1
+ 72 : err	=	t040
+ 73 : t041	=	& err
+ 74 : param	t041
+ 75 : t042	=	call readInt, 1
+ 76 : n	=	t042
+ 77 : t043	=	t042
+ 78 : param	_2
+ 79 : t044	=	call printStr, 1
+ 80 : t045	=	0
+ 81 : i	=	t045
+ 82 : t046	=	t045
+ 83 : if  i <n	goto 89
+ 84 : goto 98
+ 85 : goto 98
+ 86 : t047	=	i
+ 87 : i	=	i + 1
+ 88 : goto 83
+ 89 : t048	=	0
+ 90 : t050	=	i * 4
+ 91 : t049	=	t048 + t050
+ 92 : t051	=	& err
+ 93 : param	t051
+ 94 : t052	=	call readInt, 1
+ 95 : arr[t049]	=	t052
+ 96 : t053	=	t052
+ 97 : goto 86
+ 98 : t054	=	0
+ 99 : param	arr
+100 : param	n
+101 : t055	=	call func, 2
+102 : ans	=	t055
+103 : t056	=	t055
+104 : param	_3
+105 : t057	=	call printStr, 1
+106 : param	ans
+107 : t058	=	call printInt, 1
+108 : param	_4
+109 : t059	=	call printStr, 1
+110 : param	_5
+111 : t060	=	call printStr, 1
+112 : t061	=	0
+113 : return	t061
+_________________________________________________________________________________
+Symbol table Maintained For the Given Program
+____________________________________________ Global ____________________________________________
+Offset = 0
+Start Quad Index = 0
+End Quad Index =  0
+Name	Value	var_type	size	Offset	Type
+
+printInt	null	func		0	-1	ptr-to-St( Global )Int
+readInt	null	func		0	-1	ptr-to-St( Global )Int
+printStr	null	func		0	-1	ptr-to-St( Global )Int
+max	null	func		0	-1	ptr-to-St( max )Int
+func	null	func		0	-1	ptr-to-St( func )Int
+main	null	func		0	-1	ptr-to-St( main )Int
+
+____________________________________________________________________________________________
+_________________________________________________________________________________
+____________________________________________ max ____________________________________________
+Offset = -8
+Start Quad Index = 0
+End Quad Index =  6
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+a	null	param		4	-8	Int
+b	null	param		4	-4	Int
+
+____________________________________________________________________________________________
+____________________________________________ func ____________________________________________
+Offset = -572
+Start Quad Index = 7
+End Quad Index =  65
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+price	null	param		8	-12	array(-1,Int)
+n	null	param		4	-4	Int
+val	null	local		400	-412	array(100,Int)
+t000	100	temp		4	-416	Int
+t001	0	temp		4	-420	Int
+t002	0	temp		4	-424	Int
+t003	null	temp		4	-428	Int
+t004	null	temp		4	-432	Int
+t005	0	temp		4	-436	Int
+t006	null	temp		4	-440	Int
+i	null	local		4	-444	Int
+j	null	local		4	-448	Int
+max_val	0	local		4	-452	Int
+t007	0	temp		4	-456	Int
+t008	1	temp		4	-460	Int
+t009	null	temp		4	-464	Int
+t010	null	temp		4	-468	Int
+t011	0	temp		4	-472	Int
+t012	0	temp		4	-476	Int
+t013	null	temp		4	-480	Int
+t014	null	temp		4	-484	Int
+t015	0	temp		4	-488	Int
+t016	null	temp		4	-492	Int
+t017	null	temp		4	-496	Int
+t018	null	temp		4	-500	Int
+t019	0	temp		4	-504	Int
+t020	null	temp		4	-508	Int
+t021	1	temp		4	-512	Int
+t022	null	temp		4	-516	Int
+t023	null	temp		4	-520	Int
+t024	null	temp		4	-524	Int
+t025	null	temp		4	-528	Int
+t026	null	temp		4	-532	Int
+t027	null	temp		4	-536	Int
+t028	null	temp		4	-540	Int
+t029	0	temp		4	-544	Int
+t030	null	temp		4	-548	Int
+t031	null	temp		4	-552	Int
+t032	null	temp		4	-556	Int
+t033	0	temp		4	-560	Int
+t034	null	temp		4	-564	Int
+t035	null	temp		4	-568	Int
+t036	null	temp		4	-572	Int
+
+____________________________________________________________________________________________
+____________________________________________ main ____________________________________________
+Offset = -524
+Start Quad Index = 66
+End Quad Index =  113
+Name	Value	var_type	size	Offset	Type
+
+retVal	null	return		4	0	Int
+arr	null	local		400	-400	array(100,Int)
+t037	100	temp		4	-404	Int
+i	null	local		4	-408	Int
+n	null	local		4	-412	Int
+ans	null	local		4	-416	Int
+t038	null	temp		4	-420	Int
+t039	null	temp		4	-424	Int
+err	1	local		4	-428	Int
+t040	1	temp		4	-432	Int
+t041	null	temp		8	-440	ptr(Int)
+t042	null	temp		4	-444	Int
+t043	null	temp		4	-448	Int
+t044	null	temp		4	-452	Int
+t045	0	temp		4	-456	Int
+t046	null	temp		4	-460	Int
+t047	null	temp		4	-464	Int
+t048	0	temp		4	-468	Int
+t049	null	temp		4	-472	Int
+t050	null	temp		4	-476	Int
+t051	null	temp		8	-484	ptr(Int)
+t052	null	temp		4	-488	Int
+t053	null	temp		4	-492	Int
+t054	0	temp		4	-496	Int
+t055	null	temp		4	-500	Int
+t056	null	temp		4	-504	Int
+t057	null	temp		4	-508	Int
+t058	null	temp		4	-512	Int
+t059	null	temp		4	-516	Int
+t060	null	temp		4	-520	Int
+t061	0	temp		4	-524	Int
+
+____________________________________________________________________________________________

@@ -732,9 +732,9 @@ equality_expression
 			}
 			else 
 			{
-				convertBoolToInt($1);                  //convert bool to int value
+				convertBool2Int($1);                  //convert bool to int value
 				updateNextInstr();	
-				convertBoolToInt($3);				   //convert bool to int value
+				convertBool2Int($3);				   //convert bool to int value
 				updateNextInstr();
 				$$ = new Expression();				   //creating an Expression object
 				updateNextInstr();
@@ -761,9 +761,9 @@ equality_expression
 			}
 			else 
 			{
-				convertBoolToInt($1);                 //convert bool to int value
+				convertBool2Int($1);                 //convert bool to int value
 				updateNextInstr();	
-				convertBoolToInt($3);                 //convert bool to int value
+				convertBool2Int($3);                 //convert bool to int value
 				updateNextInstr();
 				$$ = new Expression();				  //creating an Expression object
 				updateNextInstr();
@@ -798,9 +798,9 @@ AND_expression
 			}
 			else 
 			{            
-				convertBoolToInt($1);                 //convert bool to int value
+				convertBool2Int($1);                 //convert bool to int value
 				updateNextInstr();
-				convertBoolToInt($3);                 //convert bool to int value
+				convertBool2Int($3);                 //convert bool to int value
 				updateNextInstr();
 				$$ = new Expression(); 				  //creating an Expression object
 				updateNextInstr();
@@ -831,9 +831,9 @@ exclusive_OR_expression
 			}
 			else 
 			{
-				convertBoolToInt($1);                //convert bool to int value
+				convertBool2Int($1);                //convert bool to int value
 				updateNextInstr();
-				convertBoolToInt($3);                //convert bool to int value
+				convertBool2Int($3);                //convert bool to int value
 				updateNextInstr();
 				$$ = new Expression(); 				  //creating an Expression object
 				updateNextInstr();
@@ -864,9 +864,9 @@ inclusive_OR_expression
 			}
 			else 
 			{
-				convertBoolToInt($1);	            //convert bool to int value	
+				convertBool2Int($1);	            //convert bool to int value	
 				updateNextInstr();
-				convertBoolToInt($3);               //convert bool to int value
+				convertBool2Int($3);               //convert bool to int value
 				updateNextInstr();
 				$$ = new Expression(); 				//creating an Expression object
 				updateNextInstr();
@@ -890,11 +890,11 @@ logical_AND_expression
 		| logical_AND_expression N LOGICAL_AND M inclusive_OR_expression
 		{ 
 			debug();
-			convertIntToBool($5);    //convert inclusive_OR_expression int to bool
+			convertInt2Bool($5);    //convert inclusive_OR_expression int to bool
 			updateNextInstr();
 			backpatch($2->nextList, nextinstr()); //$2->nextList goes to next instr
 			updateNextInstr();
-			convertIntToBool($1);   //convert logical_AND_expression to bool
+			convertInt2Bool($1);   //convert logical_AND_expression to bool
 			updateNextInstr();
 			$$ = new Expression();  //Create new boolean expression 
 			updateNextInstr();
@@ -919,11 +919,11 @@ logical_OR_expression
 		| logical_OR_expression N LOGICAL_OR M logical_AND_expression
 		{ 
 			debug();
-			convertIntToBool($5);    //convert inclusive_OR_expression int to bool
+			convertInt2Bool($5);    //convert inclusive_OR_expression int to bool
 			updateNextInstr();
 			backpatch($2->nextList, nextinstr()); //$2->nextList goes to next instr
 			updateNextInstr();
-			convertIntToBool($1); //convert logical_AND_expression to bool
+			convertInt2Bool($1); //convert logical_AND_expression to bool
 			updateNextInstr();
 			$$ = new Expression();     //create new boolean expression 
 			updateNextInstr();
@@ -974,7 +974,7 @@ conditional_expression
 			debug();
 			backpatch($2->nextList, nextinstr());   //backpatching
 			updateNextInstr();
-			convertIntToBool($1);                   //convert expression to boolean
+			convertInt2Bool($1);                   //convert expression to boolean
 			updateNextInstr();
 			backpatch($1->trueList, $4);           //$1 true goes to expression
 			updateNextInstr();
@@ -1479,7 +1479,7 @@ selection_statement
 		{
 			backpatch($4->nextList, nextinstr());//nextList of N goes to nextinstr
 			updateNextInstr();
-			convertIntToBool($3);        		 //convert expression to bool
+			convertInt2Bool($3);        		 //convert expression to bool
 			updateNextInstr();
 			$$ = new Statement();        		 //Create a new Statement object
 			updateNextInstr();
@@ -1495,7 +1495,7 @@ selection_statement
 		{
 			backpatch($4->nextList, nextinstr()); //nextList of N goes to nextinstr
 			updateNextInstr();
-			convertIntToBool($3);        		 //convert expression to bool
+			convertInt2Bool($3);        		 //convert expression to bool
 			updateNextInstr();
 			$$ = new Statement();       		 //create a new Statement object
 			updateNextInstr();
@@ -1518,7 +1518,7 @@ iteration_statement
 		{
 			$$ = new Statement();    		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($4);    	    //convert int value to bool
+			convertInt2Bool($4);    	    //convert int value to bool
 			updateNextInstr();
 			backpatch($7->nextList, $2);	// M1 to go back to expression again
 			updateNextInstr();
@@ -1536,7 +1536,7 @@ iteration_statement
 		{
 			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($7);      		//convert int value to bool
+			convertInt2Bool($7);      		//convert int value to bool
 			updateNextInstr();
 			backpatch($7->trueList, $2);	// M1 to go back to statement if expression is true
 			updateNextInstr();
@@ -1549,7 +1549,7 @@ iteration_statement
 		{
 			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($5);      		//convert int value to bool
+			convertInt2Bool($5);      		//convert int value to bool
 			updateNextInstr();
 			backpatch($5->trueList,$7);     //if expression is true, go to M2
 			updateNextInstr();
@@ -1566,7 +1566,7 @@ iteration_statement
 		{
 			$$ = new Statement();     		//create a new Statement object
 			updateNextInstr();
-			convertIntToBool($5);           //convert int value to boolean
+			convertInt2Bool($5);           //convert int value to boolean
 			updateNextInstr();
 			backpatch($5->trueList, $10);	//if expression is true, go to M2
 			updateNextInstr();
